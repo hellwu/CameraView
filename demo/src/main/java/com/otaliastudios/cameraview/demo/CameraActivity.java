@@ -817,11 +817,12 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 //绘制当前时间
 //                                Bitmap timeBitmap = GLFont.getImageOnRl(getAssets(),700, 80, timeStr, 53,Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
 //                                canvas.drawBitmap(timeBitmap,1280-timeBitmap.getWidth()-75,83,paint);
-                                canvas.drawText(timeStr, 1280 - 72, 83 + rect.height() ,paint2);
+                                //长宽各除去2px Text在React有留白
+                                canvas.drawText(timeStr, 1280 - 72 + 2, 83 + rect.height() - 2 ,paint2);
                                 //绘制wifi图片
                                 Bitmap bitmapwifi = BitmapFactory.decodeResource(getResources(), R.drawable.icon_service);
                                 bitmapwifi= Bitmap.createScaledBitmap(bitmapwifi, 65, 65, true);
-                                canvas.drawBitmap(bitmapwifi,1280 - rect.width() - 72 - 20 - 65, 74, paint);
+                                canvas.drawBitmap(bitmapwifi,1280 - rect.width() - 72 - 20 - 65 + 2, 74, paint);
 
                                 //绘制经纬度
                                 Bitmap jdBitmap = GLFont.getImage(getAssets(),1500, 84,wdStr , 50);
