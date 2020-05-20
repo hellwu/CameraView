@@ -572,6 +572,51 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
        builder.show();
     }
 
+    private void toggleWeightDialog(){
+        builder = new AlertDialog.Builder(CameraActivity.this);
+        builder.setIcon(R.mipmap.logo);
+        builder.setTitle("体重身长");
+        //    通过LayoutInflater来加载一个xml的布局文件作为一个View对象
+        View view = LayoutInflater.from(CameraActivity.this).inflate(R.layout.weight_length, null);
+        //    设置我们自己定义的布局文件作为弹出框的Content
+        builder.setView(view);
+
+        final EditText et_weight = (EditText)view.findViewById(R.id.editText);
+        final EditText et_length = (EditText)view.findViewById(R.id.editText3);
+
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                String weight = et_weight.getText().toString();
+                String length = et_length.getText().toString();
+                if(weight.equals("")){
+                    Toast.makeText(CameraActivity.this,"体重不能为空",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(length.equals("")){
+                    Toast.makeText(CameraActivity.this,"身长不能为空",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                SharedPreferences.Editor edit = photo.edit();
+                edit.putString("weight",weight);
+                edit.putString("length",length);
+                edit.commit();
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener()
+        {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+            }
+        });
+        builder.setCancelable(false);
+        builder.show();
+    }
+
     @Override
     public void onBackPressed() {
      /*   BottomSheetBehavior b = BottomSheetBehavior.from(controlPanel);
@@ -802,11 +847,12 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 canvas.drawBitmap(bitmaps,42,42,paint);
 
                                 Paint paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
-                                paint2.setStrokeWidth(1);  //设置线宽。单位为像素
+                                paint2.setStrokeWidth(3);  //设置线宽。单位为像素
 //                                paint2.setStyle(Paint.Style.FILL_AND_STROKE);//设置画笔的类型是填充，还是描边，还是描边且填充
-                                //paint.setAntiAlias(true); //抗锯齿
+                                paint2.setAntiAlias(true); //抗锯齿
+                                paint2.setStyle(Paint.Style.FILL_AND_STROKE);
                                 paint2.setTextAlign(Paint.Align.RIGHT);
-                                paint2.setColor(Color.WHITE);  //画笔颜色
+                                paint2.setColor(Color.BLACK);  //画笔颜色
 
                                 paint2.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
                                 paint2.setTextSize(53);
@@ -819,27 +865,70 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 //                                canvas.drawBitmap(timeBitmap,1280-timeBitmap.getWidth()-75,83,paint);
                                 //长宽各除去2px Text在React有留白
                                 canvas.drawText(timeStr, 1280 - 72 + 2, 83 + rect.height() - 2 ,paint2);
+                                paint2.setColor(Color.WHITE);  //画笔颜色
+                                paint2.setStrokeWidth(0);
+
+                                canvas.drawText(timeStr, 1280 - 72 + 2, 83 + rect.height() - 2 ,paint2);
+
                                 //绘制wifi图片
                                 Bitmap bitmapwifi = BitmapFactory.decodeResource(getResources(), R.drawable.icon_service);
                                 bitmapwifi= Bitmap.createScaledBitmap(bitmapwifi, 65, 65, true);
-                                canvas.drawBitmap(bitmapwifi,1280 - rect.width() - 72 - 20 - 65 + 2, 74, paint);
+                                canvas.drawBitmap(bitmapwifi,1280 - rect.width() - 72 - 22 - 65, 74, paint);
 
                                 //绘制经纬度
-                                Bitmap jdBitmap = GLFont.getImage(getAssets(),1500, 84,wdStr , 50);
-                                canvas.drawBitmap(jdBitmap,42,1707-jdBitmap.getHeight()-35,paint);
+                                Paint paint3 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
+                                paint3.setStrokeWidth(1);  //设置线宽。单位为像素
+//
+                                paint3.setTextAlign(Paint.Align.LEFT);
+                                paint3.setColor(Color.WHITE);  //画笔颜色
+                                paint3.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
+                                paint3.setTextSize(50);
 
-                                Bitmap wdBitmap = GLFont.getImage(getAssets(),1500, 84,jdStr , 50);
-                                canvas.drawBitmap(wdBitmap,42,1707-jdBitmap.getHeight()-wdBitmap.getHeight()-35,paint);
+                                Paint paint4 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
+                                paint4.setStrokeWidth(1);  //设置线宽。单位为像素
+//
+                                paint4.setTextAlign(Paint.Align.LEFT);
+                                paint4.setColor(Color.WHITE);  //画笔颜色
+                                paint4.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
+                                paint4.setTextSize(52);
+                                wdStr = "";
+                                jdStr = "";
+                                placeStr = "";
+                                //1.
+                                Rect rWdlable = new Rect();
+                                String wdLableStr = "纬度:";
+                                paint3.getTextBounds(wdLableStr, 0, wdLableStr.length(), rWdlable);
+                                canvas.drawText(wdLableStr, 40, 1707 - 44 - 5,paint3);
 
+                                Rect rWd = new Rect();
+                                paint4.getTextBounds(wdStr, 0, wdStr.length(), rWd);
+                                canvas.drawText(wdStr, 40 + rWdlable.width(), 1707 - 44 - 5, paint4);
+                                //2.
+                                Rect rJdlable = new Rect();
+                                String jdLableStr = "经度:";
+                                paint3.getTextBounds(jdLableStr, 0, jdLableStr.length(), rJdlable);
+                                canvas.drawText(jdLableStr, 40, 1707 - 44 - 5 - (rWdlable.height() +26) ,paint3);
+
+                                Rect rJd = new Rect();
+                                paint4.getTextBounds(jdStr, 0, jdStr.length(), rJd);
+                                canvas.drawText(jdStr, 40 + rJdlable.width(), 1707 - 44 - 5 - (rWd.height() + 26 + 4), paint4);
+                                //3.绘制位置
                                 //绘制位置
-                                Bitmap placeBitmap = GLFont.getImage(getAssets(),2000, 84, placeStr, 50);
-                                canvas.drawBitmap(placeBitmap,42,1707-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-35,paint);
-                                //绘制ID
-                                Bitmap idBitmap = GLFont.getImage(getAssets(),1200, 84, tv_id.getText().toString(), 50);
-                                canvas.drawBitmap(idBitmap,42,1707-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-idBitmap.getHeight()-35,paint);
-                                //绘制名字
-                                Bitmap nameBitmap = GLFont.getImage(getAssets(),1200, 84, tv_name.getText().toString(), 50);
-                                canvas.drawBitmap(nameBitmap,42,1707-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-idBitmap.getHeight()-nameBitmap.getHeight()-35,paint);
+                                Rect rPlace = new Rect();
+                                paint3.getTextBounds(placeStr, 0, placeStr.length(), rPlace);
+                                canvas.drawText(placeStr, 40, 1707 - 44 - 5 - (rWd.height() + 26 + 4) - (rJd.height() + 30 + 4), paint3);
+
+                                //4.绘制ID
+                                String idStr = tv_id.getText().toString();
+
+                                Rect rID = new Rect();
+                                paint4.getTextBounds(idStr, 0, idStr.length(), rID);
+                                canvas.drawText(idStr, 40, 1707 - 44 - 5  - (rWd.height() + 26 + 4) - (rJd.height() + 30 + 4 ) - (rPlace.height() + 27), paint4);
+                                //5.绘制名字
+                                String nameStr = tv_name.getText().toString();
+                                Rect rName = new Rect();
+                                paint3.getTextBounds(nameStr, 0, nameStr.length(), rName);
+                                canvas.drawText(nameStr, 40, 1707 - 44 - 5 - (rWd.height() + 26 + 4) - (rJd.height() + 30 + 4) - (rPlace.height() + 27) - (rID.height() + 32) + 2, paint3);
                             }
                         }
 
@@ -915,8 +1004,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                // text_gps_3.setText("经度：" + location.getLongitude() + "\n纬度：" + location.getLatitude());
                 Log.d("xxx","经度" + location.getLongitude() + "纬度：" + location.getLatitude());
 
-                wdStr="纬度:" + location.getLatitude();
-                jdStr="经度:" + location.getLongitude();
+                wdStr="" + location.getLatitude();
+                jdStr="" + location.getLongitude();
                 tv_jd.setText(jdStr);
                 tv_wd.setText(wdStr);
 
