@@ -269,12 +269,35 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <CheckBox
-                android:id="@+id/cb_wg"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="@drawable/wg_select"
-                android:button="@null" />
+            <Button
+                android:id="@+id/bt_ori"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="横竖"
+                android:gravity="center"
+                android:background="@null" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:id="@+id/weight"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/bt_weight"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:text="三维"
+                android:gravity="center"
+                android:background="@null" />
         </LinearLayout>
 
         <Space

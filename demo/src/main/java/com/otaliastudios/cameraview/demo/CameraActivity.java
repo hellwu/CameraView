@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -24,6 +25,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,6 +37,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -100,14 +103,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
     private int mCurrentFilter = 0;
     private final Filters[] mAllFilters = Filters.values();
-
-    private SensorManager sensorManager;
-
-    private MySensorEventListenner mySensorEventListener;
-   // private Handler mHandler;
-
-   private CheckBox cb_wg;
-  private CheckBox cb_sp;
+    private CheckBox cb_sp;
   // private  View gridview;
     SharedPreferences photo;
 
@@ -117,7 +113,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     TextView tv_place;
     TextView   tv_name;
     TextView   tv_id;
-
+    Button bt_weight;
+    Button bt_ori;
     String timeStr;
 
     String placeStr="";
@@ -138,15 +135,13 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_camera);
         getSupportActionBar().hide();
         CameraLogger.setLogLevel(CameraLogger.LEVEL_VERBOSE);
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mySensorEventListener=new MySensorEventListenner();
         camera = findViewById(R.id.camera);
-        cb_wg = findViewById(R.id.cb_wg);
+        bt_ori = findViewById(R.id.bt_ori);
         top_ll = findViewById(R.id.top_ll);
         cb_sp = findViewById(R.id.cb_sp);
         tv_name = findViewById(R.id.textView11);
         tv_id = findViewById(R.id.textView10);
-
+        bt_weight = findViewById(R.id.bt_weight);
 
 
         camera.setLifecycleOwner(this);
@@ -163,10 +158,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 tv_id.setText(photo.getString("ID", ""));
         }
 
-        boolean is43 = photo.getBoolean("is43", false);
-        if(is43){
-
-
+        boolean isHaveWeight = photo.getBoolean("isHaveWeight", false);
+        if(!isHaveWeight){
             if (ori == mConfiguration.ORIENTATION_LANDSCAPE) {//横屏
                 SizeSelector width = SizeSelectors.maxWidth(2000);
                 SizeSelector height = SizeSelectors.maxHeight(2000);
@@ -198,7 +191,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 camera.setPictureSize(result);
                 top_ll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,0,2));
             }
-            cb_wg.setChecked(true);
         }else{
             if (ori == mConfiguration.ORIENTATION_LANDSCAPE) {
                 SizeSelector width = SizeSelectors.maxWidth(2500);
@@ -231,7 +223,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 camera.setPictureSize(result);
                 top_ll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,0,0));
             }
-            cb_wg.setChecked(false);
         }
 
 
@@ -263,6 +254,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             });
         }
 
+        bt_weight.setOnClickListener(this);
+        bt_ori.setOnClickListener(this);
         findViewById(R.id.edit).setOnClickListener(this);
         findViewById(R.id.person).setOnClickListener(this);
         findViewById(R.id.capturePicture).setOnClickListener(this);
@@ -295,54 +288,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 }
             }
         };
-
         new TimeThread().start();
         initData();
-
-
-        cb_wg.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                   // top_ll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,0,2));
-               /*     SizeSelector width = SizeSelectors.minWidth(3000);
-                    SizeSelector height = SizeSelectors.minHeight(4000);
-                    SizeSelector dimensions = SizeSelectors.and(width, height); // Matches sizes bigger than 1000x2000.
-                    SizeSelector ratio = SizeSelectors.aspectRatio(AspectRatio.of(3, 4), 0); // Matches 1:1 sizes.
-                    SizeSelector result = SizeSelectors.or(
-                            SizeSelectors.and(ratio, dimensions), // Try to match both constraints
-                            ratio, // If none is found, at least try to match the aspect ratio
-                            SizeSelectors.biggest() // If none is found, take the biggest
-                    );
-                    camera.setPictureSize(result);*/
-                    SharedPreferences.Editor edit = photo.edit();
-                     edit.putBoolean("is43",true);
-                    edit.commit();
-                    startActivity(new Intent(CameraActivity.this,CameraActivity.class));
-                    finish();
-                }else{
-
-                    //top_ll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,0,0));
-                 /*   SizeSelector width = SizeSelectors.minWidth(2000);
-                    SizeSelector height = SizeSelectors.minHeight(4000);
-                    SizeSelector dimensions = SizeSelectors.and(width, height); // Matches sizes bigger than 1000x2000.
-                    SizeSelector ratio = SizeSelectors.aspectRatio(AspectRatio.of(1, 2), 0); // Matches 1:1 sizes.
-
-                    SizeSelector result = SizeSelectors.or(
-                            SizeSelectors.and(ratio, dimensions), // Try to match both constraints
-                            ratio, // If none is found, at least try to match the aspect ratio
-                            SizeSelectors.biggest() // If none is found, take the biggest
-                    );
-                    camera.setPictureSize(result);*/
-                    SharedPreferences.Editor edit = photo.edit();
-                    edit.putBoolean("is43",false);
-                    edit.commit();
-                    startActivity(new Intent(CameraActivity.this,CameraActivity.class));
-                    finish();
-                }
-
-            }
-        });
 
       cb_sp.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -370,19 +317,14 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-
-
             }
         });
-
 
         animator.start();
     }
 
     @Override
     protected void onResume() {
-        Sensor sensor_orientation=sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-        sensorManager.registerListener(mySensorEventListener,sensor_orientation, SensorManager.SENSOR_DELAY_UI);
         super.onResume();
     }
 
@@ -413,25 +355,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private class MySensorEventListenner implements SensorEventListener {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            if(event.sensor.getType()==Sensor.TYPE_ORIENTATION){
-//x表示手机指向的方位，0表示北,90表示东，180表示南，270表示西
-                float x = event.values[SensorManager.DATA_X];
-                float y = event.values[SensorManager.DATA_Y];
-                float z = event.values[SensorManager.DATA_Z];
-              //  Log.d("xxx","Orientation:"+x+","+y+","+z);
-                Message msg=new Message();
-                msg.obj=z;
-                //mHandler.sendMessage(msg);
-            }
-        }
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-        }
-    }
 
     private class Listener extends CameraListener {
 
@@ -458,17 +381,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             long callbackTime = System.currentTimeMillis();
             if (mCaptureTime == 0) mCaptureTime = callbackTime - 300;
             LOG.w("onPictureTaken called! Launching activity. Delay:", callbackTime - mCaptureTime);
-           /* PicturePreviewActivity.setPictureResult(result);
-            Intent intent = new Intent(CameraActivity.this, PicturePreviewActivity.class);
-            intent.putExtra("delay", callbackTime - mCaptureTime);
-            startActivity(intent);*/
 
-
-    /*        Collection<Size> supportedPictureSizes = camera.getCameraOptions().getSupportedPictureSizes();
-            for(Size s:supportedPictureSizes){
-                Log.d("xxx",s.getWidth()+"--"+s.getHeight());
-            }
-*/
             savePicture(result);
             mCaptureTime = 0;
             LOG.w("onPictureTaken called! Launched activity.");
@@ -520,8 +433,26 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             //case R.id.captureVideo: captureVideo(); break;
             //case R.id.toggleCamera: toggleCamera(); break;
            // case R.id.changeFilter: changeCurrentFilter(); break;
+            case R.id.bt_weight:
+                toggleWeightDialog();
+                break;
+            case R.id.bt_ori:
+                changeOri();
+                break;
         }
     }
+
+    private void changeOri() {
+        //判断当前屏幕方向
+        if (getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            //切换竖屏
+            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            //切换横屏
+            this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+    }
+
     private void toggleDialog(){
         builder = new AlertDialog.Builder(CameraActivity.this);
         builder.setIcon(R.mipmap.logo);
@@ -603,6 +534,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 SharedPreferences.Editor edit = photo.edit();
                 edit.putString("weight",weight);
                 edit.putString("length",length);
+                edit.putBoolean("isHaveWeight", true);
                 edit.commit();
             }
         });
@@ -619,11 +551,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onBackPressed() {
-     /*   BottomSheetBehavior b = BottomSheetBehavior.from(controlPanel);
-        if (b.getState() != BottomSheetBehavior.STATE_HIDDEN) {
-            b.setState(BottomSheetBehavior.STATE_HIDDEN);
-            return;
-        }*/
         super.onBackPressed();
     }
 
@@ -634,21 +561,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         }else{
             camera.setFacing(Facing.BACK);
         }
-       /* BottomSheetBehavior b = BottomSheetBehavior.from(controlPanel);
-        b.setState(BottomSheetBehavior.STATE_COLLAPSED);*/
     }
 
     private void capturePicture() {
-        //******************************
-        int time = photo.getInt("time", 0);
-        if(time==100000000){
-            Toast.makeText(CameraActivity.this,"已经超过测试拍照次数，请联系开发人员",Toast.LENGTH_SHORT).show();
-            return;
-        }
-        SharedPreferences.Editor edit = photo.edit();
-        edit.putInt("time",time+1);
-        edit.commit();
-        //******************************
         if (camera.getMode() == Mode.VIDEO) {
             message("Can't take HQ pictures while in VIDEO mode.", false);
             return;
@@ -706,21 +621,44 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    private int readPictureDegree(String path) {
+        int degree  = 0;
+        try {
+            ExifInterface exifInterface = new ExifInterface(path);
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degree = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 270;
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return degree;
+    }
+
     private void  savePicture(final PictureResult result){
+        Toast.makeText(CameraActivity.this, "翻转角度: " + result.getRotation(), Toast.LENGTH_LONG).show();
         try {
             result.toBitmap(result.getSize().getWidth(),result.getSize().getHeight(),new BitmapCallback() {
                 @Override
                 public void onBitmapReady(Bitmap bitmap) {
-                    Log.d("xxx",bitmap.getWidth()+"--"+bitmap.getHeight());
+                    Log.d("xxx",bitmap.getWidth()+"--"+bitmap.getHeight() +", Rotation = "+result.getRotation());
                     Matrix matrix=new Matrix();
-                    boolean is43 = photo.getBoolean("is43", false);
+                    boolean isHaveWeight = photo.getBoolean("isHaveWeight", false);
                     Configuration mConfiguration = CameraActivity.this.getResources().getConfiguration(); //获取设置的配置信息
                     int ori = mConfiguration.orientation; //获取屏幕方向
-                    if(!is43&&ori==mConfiguration.ORIENTATION_LANDSCAPE){
+                    if(isHaveWeight&&ori==mConfiguration.ORIENTATION_LANDSCAPE){
                         matrix.postScale((float) 2048/bitmap.getWidth(),(float)1152/bitmap.getHeight());
-                    }else if(!is43&&ori==mConfiguration.ORIENTATION_PORTRAIT){
+                    }else if(isHaveWeight&&ori==mConfiguration.ORIENTATION_PORTRAIT){
                         matrix.postScale((float) 1152/bitmap.getWidth(),(float)2048/bitmap.getHeight());
-                    }else if(is43&&ori==mConfiguration.ORIENTATION_LANDSCAPE){
+                    }else if(!isHaveWeight&&ori==mConfiguration.ORIENTATION_LANDSCAPE){
                         matrix.postScale((float) 1707/bitmap.getWidth(),(float)1280/bitmap.getHeight());
                     }else{
                         matrix.postScale((float) 1280/bitmap.getWidth(),(float)1707/bitmap.getHeight());
@@ -739,7 +677,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
                     Facing facing = camera.getFacing();
                     if(facing==Facing.BACK){//后置摄像头，绘制分辨率
-                        if(!is43){  //16:9
+                        if(isHaveWeight){  //16:9
                             if(ori==mConfiguration.ORIENTATION_LANDSCAPE) {//横屏
                                 //画logo
                                 Bitmap bitmaps = BitmapFactory.decodeResource(getResources(), R.drawable.icon_logo);
@@ -807,38 +745,96 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                             }
                         }else{   //4:3
                             if(ori==mConfiguration.ORIENTATION_LANDSCAPE) {//4:3横屏
-                                //根据Bitmap大小，画网格线
                                 //画logo
                                 Bitmap bitmaps = BitmapFactory.decodeResource(getResources(), R.drawable.icon_logo);
-                                bitmaps= Bitmap.createScaledBitmap(bitmaps, 152, 152, true);
-                                canvas.drawBitmap(bitmaps,48,25,paint);
+                                bitmaps= Bitmap.createScaledBitmap(bitmaps, 138, 138, true);
+                                canvas.drawBitmap(bitmaps,46,23,paint);
 
+                                Paint paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
+                                paint2.setStrokeWidth(3);  //设置线宽。单位为像素
+//                                paint2.setStyle(Paint.Style.FILL_AND_STROKE);//设置画笔的类型是填充，还是描边，还是描边且填充
+                                paint2.setAntiAlias(true); //抗锯齿
+                                paint2.setStyle(Paint.Style.FILL_AND_STROKE);
+                                paint2.setTextAlign(Paint.Align.RIGHT);
+                                paint2.setColor(Color.BLACK);  //画笔颜色
+
+                                paint2.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
+                                paint2.setTextSize(55);
+
+                                Rect rect = new Rect();
+                                paint2.getTextBounds(timeStr, 0, timeStr.length(), rect);
+                                Log.i("xxx", "TextBounds Width: "+rect.width()+"TextBounds-Height: "+rect.height());
                                 //绘制当前时间
-                                Bitmap timeBitmap = GLFont.getImageOnRl(getAssets(),700, 80, timeStr, 50,Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-                                canvas.drawBitmap(timeBitmap,result.getSize().getWidth()-timeBitmap.getWidth()-50,68,paint);
+//                                Bitmap timeBitmap = GLFont.getImageOnRl(getAssets(),700, 80, timeStr, 53,Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
+//                                canvas.drawBitmap(timeBitmap,1280-timeBitmap.getWidth()-75,83,paint);
+                                //长宽各除去2px Text在React有留白
+                                canvas.drawText(timeStr, 1707 - 40 + 3, 68 + rect.height() - 2 ,paint2);
+                                paint2.setColor(Color.WHITE);  //画笔颜色
+                                paint2.setStrokeWidth(0);
+
+                                canvas.drawText(timeStr, 1707 - 40 + 3, 68 + rect.height() - 2 ,paint2);
 
                                 //绘制wifi图片
                                 Bitmap bitmapwifi = BitmapFactory.decodeResource(getResources(), R.drawable.icon_service);
-                                bitmapwifi= Bitmap.createScaledBitmap(bitmapwifi, 75, 75, true);
-                                canvas.drawBitmap(bitmapwifi,result.getSize().getWidth()-timeBitmap.getWidth()-bitmapwifi.getWidth()-30,68,paint);
+                                bitmapwifi= Bitmap.createScaledBitmap(bitmapwifi, 70, 70, true);
+                                canvas.drawBitmap(bitmapwifi,1707 - rect.width() - 40 - 24 - 70, 56, paint);
 
                                 //绘制经纬度
-                                Bitmap jdBitmap = GLFont.getImage(getAssets(),1500, 80,wdStr , 50);
-                                canvas.drawBitmap(jdBitmap,55,result.getSize().getHeight()-jdBitmap.getHeight()-40,paint);
+                                Paint paint3 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
+                                paint3.setStrokeWidth(1);  //设置线宽。单位为像素
+//
+                                paint3.setTextAlign(Paint.Align.LEFT);
+                                paint3.setColor(Color.WHITE);  //画笔颜色
+                                paint3.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
+                                paint3.setTextSize(53);
 
-                                Bitmap wdBitmap = GLFont.getImage(getAssets(),1500, 100,jdStr , 50);
-                                canvas.drawBitmap(wdBitmap,55,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-40,paint);
+                                Paint paint4 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
+                                paint4.setStrokeWidth(1);  //设置线宽。单位为像素
+//
+                                paint4.setTextAlign(Paint.Align.LEFT);
+                                paint4.setColor(Color.WHITE);  //画笔颜色
+                                paint4.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
+                                paint4.setTextSize(55);
+//                                wdStr = "";
+//                                jdStr = "";
+//                                placeStr = "";
+                                //1.
+                                Rect rWdlable = new Rect();
+                                String wdLableStr = "纬度:";
+                                paint3.getTextBounds(wdLableStr, 0, wdLableStr.length(), rWdlable);
+                                canvas.drawText(wdLableStr, 44, 1280 - 48 - 5,paint3);
 
+                                Rect rWd = new Rect();
+                                paint4.getTextBounds(wdStr, 0, wdStr.length(), rWd);
+                                canvas.drawText(wdStr, 44 + rWdlable.width(), 1280 - 51, paint4);
+                                //2.
+                                Rect rJdlable = new Rect();
+                                String jdLableStr = "经度:";
+                                paint3.getTextBounds(jdLableStr, 0, jdLableStr.length(), rJdlable);
+                                canvas.drawText(jdLableStr, 44, 1280 - 48 - 5 - (rWdlable.height() +28) + 1 ,paint3);
+
+                                Rect rJd = new Rect();
+                                paint4.getTextBounds(jdStr, 0, jdStr.length(), rJd);
+                                canvas.drawText(jdStr, 44 + rJdlable.width(), 1280 - 51 - (rWd.height() +36) + 2, paint4);
+                                //3.绘制位置
                                 //绘制位置
-                                Bitmap placeBitmap = GLFont.getImage(getAssets(),2000, 100, placeStr, 50);
-                                canvas.drawBitmap(placeBitmap,55,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-40,paint);
+                                Rect rPlace = new Rect();
+                                paint3.getTextBounds(placeStr, 0, placeStr.length(), rPlace);
+                                canvas.drawText(placeStr, 44, 1280 - 48 - 5 - (rWdlable.height() +28) - (rJdlable.height() + 38), paint3);
 
-                                //绘制ID
-                                Bitmap idBitmap = GLFont.getImageOnRl(getAssets(),1200, 80, tv_id.getText().toString(), 60, Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-                                canvas.drawBitmap(idBitmap,result.getSize().getWidth()-idBitmap.getWidth()-50,result.getSize().getHeight()-idBitmap.getHeight()*2,paint);
-                                //绘制名字
-                                Bitmap nameBitmap = GLFont.getImageOnRl(getAssets(),1200, 100, tv_name.getText().toString(), 60,Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-                                canvas.drawBitmap(nameBitmap,result.getSize().getWidth()-nameBitmap.getWidth()-50,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-40,paint);
+                                //4.绘制ID
+                                String idStr = tv_id.getText().toString();
+
+                                Rect rID = new Rect();
+                                paint4.setTextAlign(Paint.Align.RIGHT);
+                                paint4.getTextBounds(idStr, 0, idStr.length(), rID);
+                                canvas.drawText(idStr, 1707 - 40 + 3, 1280 - 90 - 1, paint4);
+                                //5.绘制名字
+                                String nameStr = tv_name.getText().toString();
+                                Rect rName = new Rect();
+                                paint3.setTextAlign(Paint.Align.RIGHT);
+                                paint3.getTextBounds(nameStr, 0, nameStr.length(), rName);
+                                canvas.drawText(nameStr, 1707 - 40 + 2, 1280 - 90 - (rID.height() + 78)  - 4, paint3);
                             }else{//4:3竖屏
                                 //根据Bitmap大小，画网格线
                                 //画logo
@@ -891,9 +887,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 paint4.setColor(Color.WHITE);  //画笔颜色
                                 paint4.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
                                 paint4.setTextSize(52);
-                                wdStr = "";
-                                jdStr = "";
-                                placeStr = "";
+//                                wdStr = "";
+//                                jdStr = "";
+//                                placeStr = "";
                                 //1.
                                 Rect rWdlable = new Rect();
                                 String wdLableStr = "纬度:";
@@ -931,8 +927,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 canvas.drawText(nameStr, 40, 1707 - 44 - 5 - (rWd.height() + 26 + 4) - (rJd.height() + 30 + 4) - (rPlace.height() + 27) - (rID.height() + 32) + 2, paint3);
                             }
                         }
-
-
                     }else{
                         //根据Bitmap大小，画网格线
                         //画logo
