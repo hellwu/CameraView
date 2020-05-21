@@ -642,6 +642,14 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         }
         return degree;
     }
+    private Bitmap convertBmp(Bitmap bitmap) {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        Matrix matrix = new Matrix();
+        matrix.postScale(-1, 1);
+        Bitmap convertBmp = Bitmap.createBitmap(bitmap, 0, 0, w, h, matrix, true);
+        return convertBmp;
+    }
 
     private void  savePicture(final PictureResult result){
         Toast.makeText(CameraActivity.this, "翻转角度: " + result.getRotation(), Toast.LENGTH_LONG).show();
@@ -664,19 +672,26 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                         matrix.postScale((float) 1280/bitmap.getWidth(),(float)1707/bitmap.getHeight());
                     }
 
-                    Bitmap newBitmap=Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
-                    Canvas canvas = new Canvas(newBitmap);  //创建画布
                     Paint paint = new Paint();  //画笔
                     paint.setStrokeWidth(1);  //设置线宽。单位为像素
                     paint.setAlpha(20);
                     paint.setStyle(Paint.Style.FILL_AND_STROKE);//设置画笔的类型是填充，还是描边，还是描边且填充
                     //paint.setAntiAlias(true); //抗锯齿
                     paint.setColor(Color.WHITE);  //画笔颜色
-
+                    Canvas canvas;
+                    Facing facing = camera.getFacing();
+                    Bitmap tepBitmap=Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
+                    Bitmap newBitmap;
+                    if(facing != Facing.BACK) {
+                        newBitmap = convertBmp(tepBitmap);
+                    }
+                    else {
+                        newBitmap = tepBitmap;
+                    }
+                    canvas = new Canvas(newBitmap);  //创建画布
                     canvas.drawBitmap(newBitmap,new Matrix(),paint);  //在画布上画一个和bitmap一模一样的图
 
-                    Facing facing = camera.getFacing();
-                    if(facing==Facing.BACK){//后置摄像头，绘制分辨率
+//                    if(facing==Facing.BACK){//后置摄像头，绘制分辨率
                         if(isHaveWeight){  //16:9
                             if(ori==mConfiguration.ORIENTATION_LANDSCAPE) {//横屏
                                 //画logo
@@ -927,48 +942,48 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 canvas.drawText(nameStr, 40, 1707 - 44 - 5 - (rWd.height() + 26 + 4) - (rJd.height() + 30 + 4) - (rPlace.height() + 27) - (rID.height() + 32) + 2, paint3);
                             }
                         }
-                    }else{
-                        //根据Bitmap大小，画网格线
-                        //画logo
-                        Bitmap bitmaps = BitmapFactory.decodeResource(getResources(), R.drawable.icon_logo);
-                        bitmaps= Bitmap.createScaledBitmap(bitmaps, 25, 25, true);
-                        canvas.drawBitmap(bitmaps,5,5,paint);
-
-                        //绘制当前时间
-                        Bitmap timeBitmap = GLFont.getImage(getAssets(),120, 20, timeStr, 10);
-                        canvas.drawBitmap(timeBitmap,result.getSize().getWidth()-timeBitmap.getWidth(),0,paint);
-                        //绘制wifi图片
-                        Bitmap bitmapwifi = BitmapFactory.decodeResource(getResources(), R.drawable.icon_service);
-                        bitmapwifi= Bitmap.createScaledBitmap(bitmapwifi, 15, 15, true);
-                        canvas.drawBitmap(bitmapwifi,result.getSize().getWidth()-timeBitmap.getWidth()-bitmapwifi.getWidth()-10,5,paint);
-
-                        //绘制经纬度
-                        Bitmap jdBitmap = GLFont.getImage(getAssets(),375, 20,wdStr , 10);
-                        canvas.drawBitmap(jdBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight(),paint);
-
-                        Bitmap wdBitmap = GLFont.getImage(getAssets(),375, 20,jdStr , 10);
-                        canvas.drawBitmap(wdBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight(),paint);
-
-                        //绘制位置
-                        Bitmap placeBitmap = GLFont.getImage(getAssets(),500, 20, placeStr, 10);
-                        canvas.drawBitmap(placeBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight(),paint);
-
-                        if(ori==mConfiguration.ORIENTATION_LANDSCAPE) {//横屏
-                            //绘制ID
-                            Bitmap idBitmap = GLFont.getImageOnRl(getAssets(),300, 20, tv_id.getText().toString(), 10, Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-                            canvas.drawBitmap(idBitmap,result.getSize().getWidth()-idBitmap.getWidth()-20,result.getSize().getHeight()-idBitmap.getHeight(),paint);
-                            //绘制名字
-                            Bitmap nameBitmap = GLFont.getImageOnRl(getAssets(),300, 20, tv_name.getText().toString(), 10, Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-                            canvas.drawBitmap(nameBitmap,result.getSize().getWidth()-nameBitmap.getWidth()-20,result.getSize().getHeight()-nameBitmap.getHeight()-idBitmap.getHeight(),paint);
-                        }else{
-                            //绘制ID
-                            Bitmap idBitmap = GLFont.getImage(getAssets(),300, 20, tv_id.getText().toString(), 10);
-                            canvas.drawBitmap(idBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-idBitmap.getHeight(),paint);
-                            //绘制名字
-                            Bitmap nameBitmap = GLFont.getImage(getAssets(),100, 20, tv_name.getText().toString(), 10);
-                            canvas.drawBitmap(nameBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-idBitmap.getHeight()-nameBitmap.getHeight(),paint);
-                        }
-                    }
+//                    }else{
+//                        //根据Bitmap大小，画网格线
+//                        //画logo
+//                        Bitmap bitmaps = BitmapFactory.decodeResource(getResources(), R.drawable.icon_logo);
+//                        bitmaps= Bitmap.createScaledBitmap(bitmaps, 25, 25, true);
+//                        canvas.drawBitmap(bitmaps,5,5,paint);
+//
+//                        //绘制当前时间
+//                        Bitmap timeBitmap = GLFont.getImage(getAssets(),120, 20, timeStr, 10);
+//                        canvas.drawBitmap(timeBitmap,result.getSize().getWidth()-timeBitmap.getWidth(),0,paint);
+//                        //绘制wifi图片
+//                        Bitmap bitmapwifi = BitmapFactory.decodeResource(getResources(), R.drawable.icon_service);
+//                        bitmapwifi= Bitmap.createScaledBitmap(bitmapwifi, 15, 15, true);
+//                        canvas.drawBitmap(bitmapwifi,result.getSize().getWidth()-timeBitmap.getWidth()-bitmapwifi.getWidth()-10,5,paint);
+//
+//                        //绘制经纬度
+//                        Bitmap jdBitmap = GLFont.getImage(getAssets(),375, 20,wdStr , 10);
+//                        canvas.drawBitmap(jdBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight(),paint);
+//
+//                        Bitmap wdBitmap = GLFont.getImage(getAssets(),375, 20,jdStr , 10);
+//                        canvas.drawBitmap(wdBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight(),paint);
+//
+//                        //绘制位置
+//                        Bitmap placeBitmap = GLFont.getImage(getAssets(),500, 20, placeStr, 10);
+//                        canvas.drawBitmap(placeBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight(),paint);
+//
+//                        if(ori==mConfiguration.ORIENTATION_LANDSCAPE) {//横屏
+//                            //绘制ID
+//                            Bitmap idBitmap = GLFont.getImageOnRl(getAssets(),300, 20, tv_id.getText().toString(), 10, Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
+//                            canvas.drawBitmap(idBitmap,result.getSize().getWidth()-idBitmap.getWidth()-20,result.getSize().getHeight()-idBitmap.getHeight(),paint);
+//                            //绘制名字
+//                            Bitmap nameBitmap = GLFont.getImageOnRl(getAssets(),300, 20, tv_name.getText().toString(), 10, Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
+//                            canvas.drawBitmap(nameBitmap,result.getSize().getWidth()-nameBitmap.getWidth()-20,result.getSize().getHeight()-nameBitmap.getHeight()-idBitmap.getHeight(),paint);
+//                        }else{
+//                            //绘制ID
+//                            Bitmap idBitmap = GLFont.getImage(getAssets(),300, 20, tv_id.getText().toString(), 10);
+//                            canvas.drawBitmap(idBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-idBitmap.getHeight(),paint);
+//                            //绘制名字
+//                            Bitmap nameBitmap = GLFont.getImage(getAssets(),100, 20, tv_name.getText().toString(), 10);
+//                            canvas.drawBitmap(nameBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-idBitmap.getHeight()-nameBitmap.getHeight(),paint);
+//                        }
+//                    }
 
 
                     DateFormat format = new SimpleDateFormat("yyyy年MM月dd日-HHmmss-");
