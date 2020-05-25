@@ -89,6 +89,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 
 public class CameraActivity extends AppCompatActivity implements View.OnClickListener, OptionView.Callback {
@@ -113,6 +114,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     TextView tv_place;
     TextView   tv_name;
     TextView   tv_id;
+    TextView tv_length, tv_weight;
     Button bt_weight;
     Button bt_ori;
     String timeStr;
@@ -124,7 +126,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     String jdStr="";
     LinearLayout top_ll;
     private Handler mHandler;
-
+    String weight;
+    String length;
     private GPSLocationManager gpsLocationManager;
     AlertDialog.Builder builder;
 
@@ -142,7 +145,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         tv_name = findViewById(R.id.textView11);
         tv_id = findViewById(R.id.textView10);
         bt_weight = findViewById(R.id.bt_weight);
-
+        tv_length = findViewById(R.id.tv_length);
+        tv_weight = findViewById(R.id.tv_weight);
 
         camera.setLifecycleOwner(this);
         camera.addCameraListener(new Listener());
@@ -153,12 +157,25 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
          photo = getSharedPreferences("photo", MODE_PRIVATE);
 
         String name = photo.getString("name", "");
+         weight = photo.getString("weight", "");
+         length = photo.getString("length", "");
         if(!name.equals("")){
                 tv_name.setText(name);
                 tv_id.setText(photo.getString("ID", ""));
         }
 
         boolean isHaveWeight = photo.getBoolean("isHaveWeight", false);
+        if(isHaveWeight) {
+            tv_length.setVisibility(View.VISIBLE);
+            tv_weight.setVisibility(View.VISIBLE);
+            tv_length.setText("体长:"+length+"厘米");
+            tv_weight.setText("重量:"+weight+"公斤");
+        }
+        else {
+            tv_length.setVisibility(View.GONE);
+            tv_weight.setVisibility(View.GONE);
+        }
+
         if(!isHaveWeight){
             if (ori == mConfiguration.ORIENTATION_LANDSCAPE) {//横屏
                 SizeSelector width = SizeSelectors.maxWidth(2000);
@@ -308,8 +325,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
 
         camera.setFlash(Flash.AUTO);
-
-
         ValueAnimator animator = ValueAnimator.ofFloat(1F, 0.8F);
         animator.setDuration(300);
         animator.setRepeatCount(ValueAnimator.INFINITE);
@@ -319,7 +334,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             public void onAnimationUpdate(ValueAnimator animation) {
             }
         });
-
         animator.start();
     }
 
@@ -334,7 +348,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
            // Toast.makeText(this, content, Toast.LENGTH_LONG).show();
         } else {
             LOG.i(content);
-            //Toast.makeText(this, content, Toast.LENGTH_SHORT).show();
+
         }
     }
 
@@ -430,9 +444,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.capturePicture: capturePicture(); break;
             case R.id.capturePictureSnapshot: capturePictureSnapshot(); break;
             case R.id.person: toggleDialog(); break;
-            //case R.id.captureVideo: captureVideo(); break;
-            //case R.id.toggleCamera: toggleCamera(); break;
-           // case R.id.changeFilter: changeCurrentFilter(); break;
             case R.id.bt_weight:
                 toggleWeightDialog();
                 break;
@@ -440,6 +451,14 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 changeOri();
                 break;
         }
+    }
+
+    private  void resetApp() {
+        Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //与正常页面跳转一样可传递序列化数据,在Launch页面内获得
+        intent.putExtra("REBOOT","reboot");
+        startActivity(intent);
     }
 
     private void changeOri() {
@@ -512,30 +531,44 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         //    设置我们自己定义的布局文件作为弹出框的Content
         builder.setView(view);
 
-        final EditText et_weight = (EditText)view.findViewById(R.id.editText);
-        final EditText et_length = (EditText)view.findViewById(R.id.editText3);
-
+        final EditText et_length = (EditText)view.findViewById(R.id.editText);
+        final Button bt_clear = view.findViewById(R.id.bt_clear);
+        bt_clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences.Editor edit = photo.edit();
+                edit.putString("weight","");
+                edit.putString("length","");
+                edit.putBoolean("isHaveWeight", false);
+                edit.commit();
+                resetApp();
+            }
+        });
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener()
         {
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-                String weight = et_weight.getText().toString();
                 String length = et_length.getText().toString();
-                if(weight.equals("")){
-                    Toast.makeText(CameraActivity.this,"体重不能为空",Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 if(length.equals("")){
-                    Toast.makeText(CameraActivity.this,"身长不能为空",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CameraActivity.this,"体长不能为空",Toast.LENGTH_SHORT).show();
                     return;
                 }
-
+                String fLength = String.format("%.2f", Double.valueOf(length));
+                Toast.makeText(CameraActivity.this, "fLength = "+fLength, Toast.LENGTH_LONG).show();
+                double ww = Double.valueOf(fLength);
+                Random random = new Random();
+                float randomValue = (random.nextInt(60) + 1) * 0.1f;
+                double result = ww * ww / (150.0 + randomValue);
+                String fWeight = String.format("%.2f", Double.valueOf(result));
+                weight = fWeight;
+                length = fLength;
                 SharedPreferences.Editor edit = photo.edit();
                 edit.putString("weight",weight);
                 edit.putString("length",length);
                 edit.putBoolean("isHaveWeight", true);
                 edit.commit();
+                resetApp();
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener()
@@ -651,6 +684,17 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         return convertBmp;
     }
 
+    private void drawTextStroke(Paint paint, String text, int x, int y, int outStrokeWidth, Canvas canvas) {
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        paint.setStrokeWidth(outStrokeWidth);
+        paint.setColor(Color.BLACK);  //画笔颜色
+        canvas.drawText(text, x, y ,paint);
+
+        paint.setColor(Color.WHITE);  //画笔颜色
+        paint.setStrokeWidth(0);
+        canvas.drawText(text, x, y ,paint);
+    }
+
     private void  savePicture(final PictureResult result){
         Toast.makeText(CameraActivity.this, "翻转角度: " + result.getRotation(), Toast.LENGTH_LONG).show();
         try {
@@ -663,9 +707,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                     Configuration mConfiguration = CameraActivity.this.getResources().getConfiguration(); //获取设置的配置信息
                     int ori = mConfiguration.orientation; //获取屏幕方向
                     if(isHaveWeight&&ori==mConfiguration.ORIENTATION_LANDSCAPE){
-                        matrix.postScale((float) 2048/bitmap.getWidth(),(float)1152/bitmap.getHeight());
+                        matrix.postScale((float) 960/bitmap.getWidth(),(float)540/bitmap.getHeight());
                     }else if(isHaveWeight&&ori==mConfiguration.ORIENTATION_PORTRAIT){
-                        matrix.postScale((float) 1152/bitmap.getWidth(),(float)2048/bitmap.getHeight());
+                        matrix.postScale((float) 720/bitmap.getWidth(),(float)1280/bitmap.getHeight());
                     }else if(!isHaveWeight&&ori==mConfiguration.ORIENTATION_LANDSCAPE){
                         matrix.postScale((float) 1707/bitmap.getWidth(),(float)1280/bitmap.getHeight());
                     }else{
@@ -694,69 +738,211 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 //                    if(facing==Facing.BACK){//后置摄像头，绘制分辨率
                         if(isHaveWeight){  //16:9
                             if(ori==mConfiguration.ORIENTATION_LANDSCAPE) {//横屏
-                                //画logo
+                                //960*540
                                 Bitmap bitmaps = BitmapFactory.decodeResource(getResources(), R.drawable.icon_logo);
-                                bitmaps= Bitmap.createScaledBitmap(bitmaps, 167, 167, true);
-                                canvas.drawBitmap(bitmaps,55,29,paint);
+                                bitmaps= Bitmap.createScaledBitmap(bitmaps, 79, 79, true);
+                                canvas.drawBitmap(bitmaps,26,13,paint);
 
-                                //绘制当前时间
-                                Bitmap timeBitmap = GLFont.getImageOnRl(getAssets(),700, 80, timeStr, 66,Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-                                canvas.drawBitmap(timeBitmap,result.getSize().getWidth()-timeBitmap.getWidth()-50,68,paint);
-                                Log.d("xxx1",result.getSize().getWidth()+"");
-                                Log.d("xxx1",result.getSize().getWidth()-timeBitmap.getWidth()+"");
+                                Paint paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
+                                paint2.setStrokeWidth(3);  //设置线宽。单位为像素
+                                paint2.setAntiAlias(true); //抗锯齿
+                                paint2.setTextAlign(Paint.Align.RIGHT);
+                                paint2.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
+                                paint2.setTextSize(30);
+
+                                Rect rect = new Rect();
+                                paint2.getTextBounds(timeStr, 0, timeStr.length(), rect);
+                                drawTextStroke(paint2, timeStr, 960 - 24 + 2, 38 - 2 + rect.height(), 3, canvas);
 
                                 //绘制wifi图片
                                 Bitmap bitmapwifi = BitmapFactory.decodeResource(getResources(), R.drawable.icon_service);
-                                bitmapwifi= Bitmap.createScaledBitmap(bitmapwifi, 85, 85, true);
-                                canvas.drawBitmap(bitmapwifi,result.getSize().getWidth()-timeBitmap.getWidth()-bitmapwifi.getWidth()-85,68,paint);
+                                bitmapwifi= Bitmap.createScaledBitmap(bitmapwifi, 39, 39, true);
+                                canvas.drawBitmap(bitmapwifi,960 - rect.width() - 24 - 14 - 39 + 1 , 32, paint);
 
                                 //绘制经纬度
-                                Bitmap jdBitmap = GLFont.getImage(getAssets(),1500, 80,wdStr , 66);
-                                canvas.drawBitmap(jdBitmap,55,result.getSize().getHeight()-jdBitmap.getHeight()-50,paint);
+                                Paint paint3 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
+                                paint3.setStrokeWidth(3);  //设置线宽。单位为像素
+                                paint3.setStyle(Paint.Style.FILL_AND_STROKE);
+                                paint3.setTextAlign(Paint.Align.LEFT);
+                                paint3.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
+                                paint3.setTextSize(30);
 
-                                Bitmap wdBitmap = GLFont.getImage(getAssets(),1500, 80,jdStr , 66);
-                                canvas.drawBitmap(wdBitmap,55,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-70,paint);
+                                Paint paint4 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
+                                paint4.setStrokeWidth(3);  //设置线宽。单位为像素
+                                paint3.setStyle(Paint.Style.FILL_AND_STROKE);
+                                paint4.setTextAlign(Paint.Align.LEFT);
+                                paint4.setColor(Color.WHITE);  //画笔颜色
+                                paint4.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
+                                paint4.setTextSize(29);
+//
+                                //1.
+                                Rect rWdlable = new Rect();
+                                String wdLableStr = "纬度:";
+                                paint3.getTextBounds(wdLableStr, 0, wdLableStr.length(), rWdlable);
+                                drawTextStroke(paint3, wdLableStr, 26, 540 - 27 - 3, 3, canvas);
 
+                                Rect rWd = new Rect();
+                                paint4.getTextBounds(wdStr, 0, wdStr.length(), rWd);
+                                drawTextStroke(paint4, wdStr, 26 + rWdlable.width() + 5, 540 - 29 - 1, 3, canvas);
+                                //2.
+                                Rect rJdlable = new Rect();
+                                String jdLableStr = "经度:";
+                                paint3.getTextBounds(jdLableStr, 0, jdLableStr.length(), rJdlable);
+                                drawTextStroke(paint3, jdLableStr, 26, 540 - 27 - 3 - (rWdlable.height() +17) + 1, 3, canvas);
+
+                                Rect rJd = new Rect();
+                                paint4.getTextBounds(jdStr, 0, jdStr.length(), rJd);
+                                drawTextStroke(paint4, jdStr, 26 + rJdlable.width() + 5, 540 - 29 - 1 - (rWd.height() +20) + 1 - 1, 3, canvas);
+
+                                //3.绘制位置
                                 //绘制位置
-                                Bitmap placeBitmap = GLFont.getImage(getAssets(),2000, 80, placeStr, 66);
-                                canvas.drawBitmap(placeBitmap,55,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-90,paint);
-                                //绘制ID
-                                Bitmap idBitmap = GLFont.getImageOnRl(getAssets(),1200, 80, tv_id.getText().toString(), 66, Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-                                canvas.drawBitmap(idBitmap,result.getSize().getWidth()-idBitmap.getWidth()-50,result.getSize().getHeight()-idBitmap.getHeight()*2-15,paint);
-                                //绘制名字
-                                Bitmap nameBitmap = GLFont.getImageOnRl(getAssets(),1200, 80, tv_name.getText().toString(), 66,Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-                                canvas.drawBitmap(nameBitmap,result.getSize().getWidth()-nameBitmap.getWidth()-50,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-80,paint);
+                                Rect rPlace = new Rect();
+                                paint3.getTextBounds(placeStr, 0, placeStr.length(), rPlace);
+                                drawTextStroke(paint3, placeStr, 26, 540 - 27 - 3 - (rWdlable.height() + 17) + 1 - (rJdlable.height() + 22) + 1, 3, canvas);
+
+
+                                //6.绘制重量
+                                String weightUnit ="重量:";
+                                Rect rWeightUnit = new Rect();
+                                paint3.getTextBounds(weightUnit, 0, weightUnit.length(), rWeightUnit);
+                                drawTextStroke(paint3, weightUnit, 26, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 3, 3, canvas);
+
+                                Rect rWeight = new Rect();
+                                paint3.getTextBounds(weight+"公斤", 0, (weight+"公斤").length(), rWeight);
+                                drawTextStroke(paint3, weight+"公斤", 26 + rWeightUnit.width() + 22, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 3, 3, canvas);
+//                                String weightUnit2 ="公斤";
+//                                Rect rWeightUnit2 = new Rect();
+//                                paint3.getTextBounds(weightUnit2, 0, weightUnit2.length(), rWeightUnit2);
+//                                canvas.drawText(weightUnit2, 22 + rWeight.width() + rWeightUnit.width(), 540 - 22 - (rWd.height() + 14) - (rJd.height() + 18) - (rPlace.height() + 18), paint3);
+
+                                //7.绘制体长
+                                String lengthUnit = "体长:";
+                                Rect rLengthUnit = new Rect();
+                                paint3.getTextBounds(lengthUnit, 0, lengthUnit.length(), rLengthUnit);
+                                drawTextStroke(paint3, lengthUnit, 26, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 5 - (rLengthUnit.height() + 9) + 3, 3, canvas);
+
+                                Rect rLength = new Rect();
+                                paint3.getTextBounds(length+"厘米", 0, (length+"厘米").length(), rLength);
+                                drawTextStroke(paint3, length+"厘米", 26 + rLengthUnit.width() + 22, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 5 - (rLengthUnit.height() + 9) + 3, 3, canvas);
+
+                                //4.绘制ID
+                                String idStr = tv_id.getText().toString();
+
+                                Rect rID = new Rect();
+                                paint3.setTextAlign(Paint.Align.RIGHT);
+                                paint3.getTextBounds(idStr, 0, idStr.length(), rID);
+                                drawTextStroke(paint3, idStr, 960 - 24 + 2, 540 - 51 - 1, 3, canvas);
+
+                                //5.绘制名字
+                                String nameStr = tv_name.getText().toString();
+                                Rect rName = new Rect();
+                                paint3.setTextAlign(Paint.Align.RIGHT);
+                                paint3.getTextBounds(nameStr, 0, nameStr.length(), rName);
+                                drawTextStroke(paint3, nameStr, 960 - 24 + 1, 540 - 51 - 1 - (rID.height() + 46), 3, canvas);
                             }else{
-                                //画logo
+                                //720*1280
                                 Bitmap bitmaps = BitmapFactory.decodeResource(getResources(), R.drawable.icon_logo);
-                                bitmaps= Bitmap.createScaledBitmap(bitmaps, 180, 180, true);
-                                canvas.drawBitmap(bitmaps,58,50,paint);
+                                bitmaps= Bitmap.createScaledBitmap(bitmaps, 72, 72, true);
+                                canvas.drawBitmap(bitmaps,24,24,paint);
 
-                                //绘制当前时间
-                                Bitmap timeBitmap = GLFont.getImageOnRl(getAssets(),820, 80, timeStr, 69,Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-                                canvas.drawBitmap(timeBitmap,result.getSize().getWidth()-timeBitmap.getWidth()-85,100,paint);
+                                Paint paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
+                                paint2.setStrokeWidth(3);  //设置线宽。单位为像素
+//                                paint2.setStyle(Paint.Style.FILL_AND_STROKE);//设置画笔的类型是填充，还是描边，还是描边且填充
+                                paint2.setAntiAlias(true); //抗锯齿
+                                paint2.setStyle(Paint.Style.FILL_AND_STROKE);
+                                paint2.setTextAlign(Paint.Align.RIGHT);
+                                paint2.setColor(Color.BLACK);  //画笔颜色
+
+                                paint2.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
+                                paint2.setTextSize(28);
+
+                                Rect rect = new Rect();
+                                paint2.getTextBounds(timeStr, 0, timeStr.length(), rect);
+                                drawTextStroke(paint2, timeStr, 720 - 42 + 2, 48 + rect.height() - 3, 3, canvas);
+
 
                                 //绘制wifi图片
                                 Bitmap bitmapwifi = BitmapFactory.decodeResource(getResources(), R.drawable.icon_service);
-                                bitmapwifi= Bitmap.createScaledBitmap(bitmapwifi, 85, 85, true);
-                                canvas.drawBitmap(bitmapwifi,result.getSize().getWidth()-timeBitmap.getWidth()-bitmapwifi.getWidth()-50,95,paint);
+                                bitmapwifi= Bitmap.createScaledBitmap(bitmapwifi, 36, 36, true);
+                                canvas.drawBitmap(bitmapwifi,720 - rect.width() - 42 - 13 - 36 + 2, 42, paint);
 
                                 //绘制经纬度
-                                Bitmap jdBitmap = GLFont.getImage(getAssets(),1500, 80,wdStr , 69);
-                                canvas.drawBitmap(jdBitmap,55,result.getSize().getHeight()-jdBitmap.getHeight()-45,paint);
+                                Paint paint3 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
+                                paint3.setStrokeWidth(1);  //设置线宽。单位为像素
+//
+                                paint3.setTextAlign(Paint.Align.LEFT);
+                                paint3.setColor(Color.WHITE);  //画笔颜色
+                                paint3.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
+                                paint3.setTextSize(28);
 
-                                Bitmap wdBitmap = GLFont.getImage(getAssets(),1500, 80,jdStr , 69);
-                                canvas.drawBitmap(wdBitmap,55,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-65,paint);
+                                Paint paint4 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
+                                paint4.setStrokeWidth(1);  //设置线宽。单位为像素
+//
+//                                paint4.setTextAlign(Paint.Align.LEFT);
+//                                paint4.setColor(Color.WHITE);  //画笔颜色
+//                                paint4.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
+//                                paint4.setTextSize(29);
+//
+                                //1.
+                                Rect rWdlable = new Rect();
+                                String wdLableStr = "纬度:";
+                                paint3.getTextBounds(wdLableStr, 0, wdLableStr.length(), rWdlable);
+                                canvas.drawText(wdLableStr, 24 - 1, 1280 - 24 - 3,paint3);
+                                drawTextStroke(paint3, wdLableStr, 24 - 1, 1280 - 24 - 3, 3, canvas);
 
+                                Rect rWd = new Rect();
+                                paint3.getTextBounds(wdStr, 0, wdStr.length(), rWd);
+                                drawTextStroke(paint3, wdStr, 24 - 1 + rWdlable.width(), 1280 - 27 - 1, 3, canvas);
+
+                                //2.
+                                Rect rJdlable = new Rect();
+                                String jdLableStr = "经度:";
+                                paint3.getTextBounds(jdLableStr, 0, jdLableStr.length(), rJdlable);
+                                drawTextStroke(paint3, jdLableStr, 24 - 1, 1280 - 24 - 3 - (rWdlable.height() +15) - 1, 3, canvas);
+
+                                Rect rJd = new Rect();
+                                paint3.getTextBounds(jdStr, 0, jdStr.length(), rJd);
+                                drawTextStroke(paint3, jdStr, 24 - 1 + rJdlable.width(), 1280 - 27 - 1 - (rWd.height() + 18) + 1, 3, canvas);
+
+                                //3.绘制位置
                                 //绘制位置
-                                Bitmap placeBitmap = GLFont.getImage(getAssets(),2000, 80, placeStr, 69);
-                                canvas.drawBitmap(placeBitmap,55,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-85,paint);
-                                //绘制ID
-                                Bitmap idBitmap = GLFont.getImage(getAssets(),1200, 80, tv_id.getText().toString(), 69);
-                                canvas.drawBitmap(idBitmap,55,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-idBitmap.getHeight()-105,paint);
-                                //绘制名字
-                                Bitmap nameBitmap = GLFont.getImage(getAssets(),1200, 80, tv_name.getText().toString(), 69);
-                                canvas.drawBitmap(nameBitmap,55,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-idBitmap.getHeight()-nameBitmap.getHeight()-125,paint);
+                                Rect rPlace = new Rect();
+                                paint3.getTextBounds(placeStr, 0, placeStr.length(), rPlace);
+                                drawTextStroke(paint3, placeStr, 24 - 1, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1, 3, canvas);
+
+                                //4.绘制ID
+                                String idStr = tv_id.getText().toString();
+
+                                Rect rID = new Rect();
+                                paint3.getTextBounds(idStr, 0, idStr.length(), rID);
+                                drawTextStroke(paint3, idStr, 24 - 1, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) + 3, 3, canvas);
+
+                                //5.绘制名字
+                                String nameStr = tv_name.getText().toString();
+                                Rect rName = new Rect();
+                                paint3.getTextBounds(nameStr, 0, nameStr.length(), rName);
+                                drawTextStroke(paint3, nameStr, 24 - 1, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) + 3 - (rID.height() + 18) - 1, 3, canvas);
+
+                                //6.绘制重量
+                                String weightUnit ="重量:";
+                                Rect rWeightUnit = new Rect();
+                                paint3.getTextBounds(weightUnit, 0, weightUnit.length(), rWeightUnit);
+                                drawTextStroke(paint3, weightUnit, 24 - 1, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) + 3 - (rID.height() + 18) - 1 - (rName.height() + 16) + 1, 3, canvas);
+
+                                Rect rWeight = new Rect();
+                                paint3.getTextBounds(weight+"公斤", 0, (weight+"公斤").length(), rWeight);
+                                drawTextStroke(paint3, weight+"公斤", 24 - 1 + rWeightUnit.width(), 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) + 3 - (rID.height() + 18) - 1 - (rName.height() + 16) + 1, 3, canvas);
+
+
+                                //7.绘制体长
+                                String lengthUnit = "体长:";
+                                Rect rLengthUnit = new Rect();
+                                paint3.getTextBounds(lengthUnit, 0, lengthUnit.length(), rLengthUnit);
+                                drawTextStroke(paint3, lengthUnit, 24 - 1, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 15) + 2 - (rPlace.height() + 18) + 3  - (rID.height() + 18) - 1 - (rName.height() + 16) + 1 - (rLengthUnit.height() + 8) - 1, 3, canvas);
+
+                                Rect rLength = new Rect();
+                                paint3.getTextBounds(length+"厘米", 0, (length+"厘米").length(), rLength);
+                                drawTextStroke(paint3, length+"厘米", 24 - 1 + rLengthUnit.width(), 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 15) + 2 - (rPlace.height() + 18) + 3  - (rID.height() + 18) - 1 - (rName.height() + 16) + 1 - (rLengthUnit.height() + 8) - 1, 3, canvas);
                             }
                         }else{   //4:3
                             if(ori==mConfiguration.ORIENTATION_LANDSCAPE) {//4:3横屏

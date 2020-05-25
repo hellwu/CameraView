@@ -64,6 +64,24 @@
                         android:layout_height="match_parent">
 
                         <TextView
+                            android:id="@+id/tv_length"
+                            android:layout_above="@id/tv_weight"
+                            android:layout_width="wrap_content"
+                            android:textColor="#FFFFFF"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:text="请设置体长" />
+
+                        <TextView
+                            android:id="@+id/tv_weight"
+                            android:layout_above="@id/textView11"
+                            android:layout_width="wrap_content"
+                            android:textColor="#FFFFFF"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:text="请设置体重" />
+
+                        <TextView
                             android:id="@+id/textView11"
                             android:layout_above="@id/textView10"
                             android:layout_width="wrap_content"
