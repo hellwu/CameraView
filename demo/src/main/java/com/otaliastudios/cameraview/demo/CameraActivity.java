@@ -688,9 +688,13 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setStrokeWidth(outStrokeWidth);
         paint.setColor(Color.BLACK);  //画笔颜色
+//        paint.setAlpha(191);
+        paint.setAlpha(128);
+//        paint.setColor(Color.BLACK);  //画笔颜色
         canvas.drawText(text, x, y ,paint);
 
         paint.setColor(Color.WHITE);  //画笔颜色
+        paint.setAlpha(230);
         paint.setStrokeWidth(0);
         canvas.drawText(text, x, y ,paint);
     }
@@ -752,7 +756,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
                                 Rect rect = new Rect();
                                 paint2.getTextBounds(timeStr, 0, timeStr.length(), rect);
-                                drawTextStroke(paint2, timeStr, 960 - 24 + 2, 38 - 2 + rect.height(), 3, canvas);
+                                drawTextStroke(paint2, timeStr, 960 - 24 + 2, 38 - 2 + rect.height(), 2, canvas);
 
                                 //绘制wifi图片
                                 Bitmap bitmapwifi = BitmapFactory.decodeResource(getResources(), R.drawable.icon_service);
@@ -761,14 +765,16 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
                                 //绘制经纬度
                                 Paint paint3 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
-                                paint3.setStrokeWidth(3);  //设置线宽。单位为像素
+                                paint3.setStrokeWidth(2);  //设置线宽。单位为像素
+                                paint3.setAntiAlias(true);
                                 paint3.setStyle(Paint.Style.FILL_AND_STROKE);
                                 paint3.setTextAlign(Paint.Align.LEFT);
                                 paint3.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
                                 paint3.setTextSize(30);
 
                                 Paint paint4 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
-                                paint4.setStrokeWidth(3);  //设置线宽。单位为像素
+                                paint4.setStrokeWidth(2);  //设置线宽。单位为像素
+                                paint4.setAntiAlias(true);
                                 paint3.setStyle(Paint.Style.FILL_AND_STROKE);
                                 paint4.setTextAlign(Paint.Align.LEFT);
                                 paint4.setColor(Color.WHITE);  //画笔颜色
@@ -777,53 +783,66 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 //
                                 //1.
                                 Rect rWdlable = new Rect();
-                                String wdLableStr = "纬度:";
+                                String wdLableStr = "纬度";
                                 paint3.getTextBounds(wdLableStr, 0, wdLableStr.length(), rWdlable);
-                                drawTextStroke(paint3, wdLableStr, 26, 540 - 27 - 3, 3, canvas);
+                                drawTextStroke(paint3, wdLableStr, 26, 540 - 27 - 3, 2, canvas);
+
+                                Rect rWd0 = new Rect();
+                                paint4.getTextBounds(":", 0, ":".length(), rWd0);
+                                drawTextStroke(paint4, ":", 26 + rWdlable.width() + 4, 540 - 29 - 1, 2, canvas);
 
                                 Rect rWd = new Rect();
                                 paint4.getTextBounds(wdStr, 0, wdStr.length(), rWd);
-                                drawTextStroke(paint4, wdStr, 26 + rWdlable.width() + 5, 540 - 29 - 1, 3, canvas);
+                                drawTextStroke(paint4, wdStr, 26 + rWdlable.width() + 4 + rWd0.width() + 6, 540 - 29 - 1, 2, canvas);
                                 //2.
                                 Rect rJdlable = new Rect();
-                                String jdLableStr = "经度:";
+                                String jdLableStr = "经度";
                                 paint3.getTextBounds(jdLableStr, 0, jdLableStr.length(), rJdlable);
-                                drawTextStroke(paint3, jdLableStr, 26, 540 - 27 - 3 - (rWdlable.height() +17) + 1, 3, canvas);
+                                drawTextStroke(paint3, jdLableStr, 26, 540 - 27 - 3 - (rWdlable.height() +17) + 1, 2, canvas);
+
+                                Rect rJd0 = new Rect();
+                                paint3.getTextBounds(":", 0, ":".length(), rJd0);
+                                drawTextStroke(paint3, ":", 26 + rJdlable.width() + 4, 540 - 27 - 3 - (rWdlable.height() +17) + 1, 2, canvas);
 
                                 Rect rJd = new Rect();
                                 paint4.getTextBounds(jdStr, 0, jdStr.length(), rJd);
-                                drawTextStroke(paint4, jdStr, 26 + rJdlable.width() + 5, 540 - 29 - 1 - (rWd.height() +20) + 1 - 1, 3, canvas);
+                                drawTextStroke(paint4, jdStr, 26 + rJdlable.width() + 4 + rJd0.width() + 4, 540 - 29 - 1 - (rWd.height() +20) + 1 - 1, 2, canvas);
 
                                 //3.绘制位置
                                 //绘制位置
                                 Rect rPlace = new Rect();
                                 paint3.getTextBounds(placeStr, 0, placeStr.length(), rPlace);
-                                drawTextStroke(paint3, placeStr, 26, 540 - 27 - 3 - (rWdlable.height() + 17) + 1 - (rJdlable.height() + 22) + 1, 3, canvas);
+                                drawTextStroke(paint3, placeStr, 26, 540 - 27 - 3 - (rWdlable.height() + 17) + 1 - (rJdlable.height() + 22) + 1, 2, canvas);
 
 
                                 //6.绘制重量
-                                String weightUnit ="重量:";
+                                String weightUnit ="重量";
                                 Rect rWeightUnit = new Rect();
                                 paint3.getTextBounds(weightUnit, 0, weightUnit.length(), rWeightUnit);
-                                drawTextStroke(paint3, weightUnit, 26, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 3, 3, canvas);
+                                drawTextStroke(paint3, weightUnit, 26, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 3, 2, canvas);
+
+                                Rect rWeight0 = new Rect();
+                                paint3.getTextBounds(":", 0, ":".length(), rWeight0);
+                                drawTextStroke(paint3, ":", 26 + rWeightUnit.width() + 7 , 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 5, 2, canvas);
 
                                 Rect rWeight = new Rect();
                                 paint3.getTextBounds(weight+"公斤", 0, (weight+"公斤").length(), rWeight);
-                                drawTextStroke(paint3, weight+"公斤", 26 + rWeightUnit.width() + 22, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 3, 3, canvas);
-//                                String weightUnit2 ="公斤";
-//                                Rect rWeightUnit2 = new Rect();
-//                                paint3.getTextBounds(weightUnit2, 0, weightUnit2.length(), rWeightUnit2);
-//                                canvas.drawText(weightUnit2, 22 + rWeight.width() + rWeightUnit.width(), 540 - 22 - (rWd.height() + 14) - (rJd.height() + 18) - (rPlace.height() + 18), paint3);
+                                drawTextStroke(paint3, weight+"公斤", 26 + rWeightUnit.width() + 7 + rWeight0.width() + 24, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 3, 2, canvas);
+//
 
                                 //7.绘制体长
-                                String lengthUnit = "体长:";
+                                String lengthUnit = "体长";
                                 Rect rLengthUnit = new Rect();
                                 paint3.getTextBounds(lengthUnit, 0, lengthUnit.length(), rLengthUnit);
-                                drawTextStroke(paint3, lengthUnit, 26, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 5 - (rLengthUnit.height() + 9) + 3, 3, canvas);
+                                drawTextStroke(paint3, lengthUnit, 26, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 5 - (rLengthUnit.height() + 9) + 3, 2, canvas);
+
+                                Rect rLength0 = new Rect();
+                                paint3.getTextBounds(":", 0, ":".length(), rLength0);
+                                drawTextStroke(paint3, ":", 26 + rLengthUnit.width() + 6, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 5 - (rLengthUnit.height() + 9) + 1, 2, canvas);
 
                                 Rect rLength = new Rect();
                                 paint3.getTextBounds(length+"厘米", 0, (length+"厘米").length(), rLength);
-                                drawTextStroke(paint3, length+"厘米", 26 + rLengthUnit.width() + 22, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 5 - (rLengthUnit.height() + 9) + 3, 3, canvas);
+                                drawTextStroke(paint3, length+"厘米", 26 + rLengthUnit.width() + 6 + rLength0.width() + 23, 540 - 29 - 1 - (rWd.height() + 20) + 1 - (rJd.height() + 22) + 1 - (rPlace.height() + 22) - 5 - (rLengthUnit.height() + 9) + 3, 2, canvas);
 
                                 //4.绘制ID
                                 String idStr = tv_id.getText().toString();
@@ -831,14 +850,14 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 Rect rID = new Rect();
                                 paint3.setTextAlign(Paint.Align.RIGHT);
                                 paint3.getTextBounds(idStr, 0, idStr.length(), rID);
-                                drawTextStroke(paint3, idStr, 960 - 24 + 2, 540 - 51 - 1, 3, canvas);
+                                drawTextStroke(paint3, idStr, 960 - 24 + 2, 540 - 51 - 1, 2, canvas);
 
                                 //5.绘制名字
                                 String nameStr = tv_name.getText().toString();
                                 Rect rName = new Rect();
                                 paint3.setTextAlign(Paint.Align.RIGHT);
                                 paint3.getTextBounds(nameStr, 0, nameStr.length(), rName);
-                                drawTextStroke(paint3, nameStr, 960 - 24 + 1, 540 - 51 - 1 - (rID.height() + 46), 3, canvas);
+                                drawTextStroke(paint3, nameStr, 960 - 24 + 1, 540 - 51 - 1 - (rID.height() + 46), 2, canvas);
                             }else{
                                 //720*1280
                                 Bitmap bitmaps = BitmapFactory.decodeResource(getResources(), R.drawable.icon_logo);
@@ -846,7 +865,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 canvas.drawBitmap(bitmaps,24,24,paint);
 
                                 Paint paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
-                                paint2.setStrokeWidth(3);  //设置线宽。单位为像素
+                                paint2.setStrokeWidth(2);  //设置线宽。单位为像素
 //                                paint2.setStyle(Paint.Style.FILL_AND_STROKE);//设置画笔的类型是填充，还是描边，还是描边且填充
                                 paint2.setAntiAlias(true); //抗锯齿
                                 paint2.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -858,7 +877,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
                                 Rect rect = new Rect();
                                 paint2.getTextBounds(timeStr, 0, timeStr.length(), rect);
-                                drawTextStroke(paint2, timeStr, 720 - 42 + 2, 48 + rect.height() - 3, 3, canvas);
+                                drawTextStroke(paint2, timeStr, 720 - 42 + 2, 48 + rect.height() - 2, 2, canvas);
 
 
                                 //绘制wifi图片
@@ -868,15 +887,15 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
                                 //绘制经纬度
                                 Paint paint3 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
-                                paint3.setStrokeWidth(1);  //设置线宽。单位为像素
-//
+                                paint3.setStrokeWidth(2);  //设置线宽。单位为像素
+                                paint3.setAntiAlias(true);
                                 paint3.setTextAlign(Paint.Align.LEFT);
                                 paint3.setColor(Color.WHITE);  //画笔颜色
                                 paint3.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
                                 paint3.setTextSize(28);
 
                                 Paint paint4 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
-                                paint4.setStrokeWidth(1);  //设置线宽。单位为像素
+                                paint4.setStrokeWidth(2);  //设置线宽。单位为像素
 //
 //                                paint4.setTextAlign(Paint.Align.LEFT);
 //                                paint4.setColor(Color.WHITE);  //画笔颜色
@@ -885,64 +904,80 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 //
                                 //1.
                                 Rect rWdlable = new Rect();
-                                String wdLableStr = "纬度:";
+                                String wdLableStr = "纬度";
                                 paint3.getTextBounds(wdLableStr, 0, wdLableStr.length(), rWdlable);
-                                canvas.drawText(wdLableStr, 24 - 1, 1280 - 24 - 3,paint3);
-                                drawTextStroke(paint3, wdLableStr, 24 - 1, 1280 - 24 - 3, 3, canvas);
+                                drawTextStroke(paint3, wdLableStr, 24, 1280 - 24 - 4, 2, canvas);
+
+                                Rect rWd0 = new Rect();
+                                paint3.getTextBounds(":", 0, ":".length(), rWd0);
+                                drawTextStroke(paint3, ":", 24 + rWdlable.width() + 3, 1280 - 24 - 4, 2, canvas);
 
                                 Rect rWd = new Rect();
                                 paint3.getTextBounds(wdStr, 0, wdStr.length(), rWd);
-                                drawTextStroke(paint3, wdStr, 24 - 1 + rWdlable.width(), 1280 - 27 - 1, 3, canvas);
+                                drawTextStroke(paint3, wdStr, 24 + rWdlable.width() + 3 + rWd0.width() + 6, 1280 - 27 - 1, 2, canvas);
 
                                 //2.
                                 Rect rJdlable = new Rect();
-                                String jdLableStr = "经度:";
+                                String jdLableStr = "经度";
                                 paint3.getTextBounds(jdLableStr, 0, jdLableStr.length(), rJdlable);
-                                drawTextStroke(paint3, jdLableStr, 24 - 1, 1280 - 24 - 3 - (rWdlable.height() +15) - 1, 3, canvas);
+                                drawTextStroke(paint3, jdLableStr, 24, 1280 - 24 - 3 - (rWdlable.height() +15), 2, canvas);
+
+                                Rect rJd0 = new Rect();
+                                paint3.getTextBounds(":", 0, ":".length(), rJd0);
+                                drawTextStroke(paint3, ":", 24 + rJdlable.width() + 3, 1280 - 24 - 3 - (rWdlable.height() +15), 2, canvas);
 
                                 Rect rJd = new Rect();
                                 paint3.getTextBounds(jdStr, 0, jdStr.length(), rJd);
-                                drawTextStroke(paint3, jdStr, 24 - 1 + rJdlable.width(), 1280 - 27 - 1 - (rWd.height() + 18) + 1, 3, canvas);
+                                drawTextStroke(paint3, jdStr, 24 + rJdlable.width() + 3 + rJd0.width() + 4, 1280 - 27 - 1 - (rWd.height() + 18), 2, canvas);
 
                                 //3.绘制位置
                                 //绘制位置
                                 Rect rPlace = new Rect();
                                 paint3.getTextBounds(placeStr, 0, placeStr.length(), rPlace);
-                                drawTextStroke(paint3, placeStr, 24 - 1, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1, 3, canvas);
+                                drawTextStroke(paint3, placeStr, 24, 1280 - 24 - 3 - (rWd.height() + 15) - (rJd.height() + 18) - 5, 2, canvas);
 
                                 //4.绘制ID
                                 String idStr = tv_id.getText().toString();
 
                                 Rect rID = new Rect();
                                 paint3.getTextBounds(idStr, 0, idStr.length(), rID);
-                                drawTextStroke(paint3, idStr, 24 - 1, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) + 3, 3, canvas);
+                                drawTextStroke(paint3, idStr, 24, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) - 2 , 2, canvas);
 
                                 //5.绘制名字
                                 String nameStr = tv_name.getText().toString();
                                 Rect rName = new Rect();
                                 paint3.getTextBounds(nameStr, 0, nameStr.length(), rName);
-                                drawTextStroke(paint3, nameStr, 24 - 1, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) + 3 - (rID.height() + 18) - 1, 3, canvas);
+                                drawTextStroke(paint3, nameStr, 24, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17)  - (rID.height() + 18) - 3, 2, canvas);
 
                                 //6.绘制重量
-                                String weightUnit ="重量:";
+                                String weightUnit ="重量";
                                 Rect rWeightUnit = new Rect();
                                 paint3.getTextBounds(weightUnit, 0, weightUnit.length(), rWeightUnit);
-                                drawTextStroke(paint3, weightUnit, 24 - 1, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) + 3 - (rID.height() + 18) - 1 - (rName.height() + 16) + 1, 3, canvas);
+                                drawTextStroke(paint3, weightUnit, 24, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) - (rID.height() + 18) - 1 - (rName.height() + 16), 2, canvas);
+
+                                Rect rWeigh0 = new Rect();
+                                paint3.getTextBounds(":", 0, ":".length(), rWeigh0);
+                                drawTextStroke(paint3, ":", 24 + rWeightUnit.width() + 4, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) - (rID.height() + 18) - 1 - (rName.height() + 16) - 2, 2, canvas);
+
 
                                 Rect rWeight = new Rect();
                                 paint3.getTextBounds(weight+"公斤", 0, (weight+"公斤").length(), rWeight);
-                                drawTextStroke(paint3, weight+"公斤", 24 - 1 + rWeightUnit.width(), 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) + 3 - (rID.height() + 18) - 1 - (rName.height() + 16) + 1, 3, canvas);
+                                drawTextStroke(paint3, weight+"公斤", 24 + rWeightUnit.width() + 6 + rWeigh0.width() + 21, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) - (rID.height() + 18) - 1 - (rName.height() + 16), 2, canvas);
 
 
                                 //7.绘制体长
-                                String lengthUnit = "体长:";
+                                String lengthUnit = "体长";
                                 Rect rLengthUnit = new Rect();
                                 paint3.getTextBounds(lengthUnit, 0, lengthUnit.length(), rLengthUnit);
-                                drawTextStroke(paint3, lengthUnit, 24 - 1, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 15) + 2 - (rPlace.height() + 18) + 3  - (rID.height() + 18) - 1 - (rName.height() + 16) + 1 - (rLengthUnit.height() + 8) - 1, 3, canvas);
+                                drawTextStroke(paint3, lengthUnit, 24, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) - (rID.height() + 18) - 1 - (rName.height() + 16) + 1 - (rLengthUnit.height() + 8) - 1, 2, canvas);
+
+                                Rect rLength0 = new Rect();
+                                paint3.getTextBounds(":", 0, ":".length(), rLength0);
+                                drawTextStroke(paint3, ":", 24 + rLengthUnit.width() + 4, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) - (rID.height() + 18) - 1 - (rName.height() + 16) + 1 - (rLengthUnit.height() + 8) - 3, 2, canvas);
 
                                 Rect rLength = new Rect();
                                 paint3.getTextBounds(length+"厘米", 0, (length+"厘米").length(), rLength);
-                                drawTextStroke(paint3, length+"厘米", 24 - 1 + rLengthUnit.width(), 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 15) + 2 - (rPlace.height() + 18) + 3  - (rID.height() + 18) - 1 - (rName.height() + 16) + 1 - (rLengthUnit.height() + 8) - 1, 3, canvas);
+                                drawTextStroke(paint3, length+"厘米", 24 + rLengthUnit.width() + 6 + rLength0.width() + 20 - 1, 1280 - 24 - 3 - (rWd.height() + 15) - 1 - (rJd.height() + 18) + 1 - (rPlace.height() + 17) - (rID.height() + 18) - 1 - (rName.height() + 16) + 1 - (rLengthUnit.height() + 8) - 1, 2, canvas);
                             }
                         }else{   //4:3
                             if(ori==mConfiguration.ORIENTATION_LANDSCAPE) {//4:3横屏
@@ -960,20 +995,12 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 paint2.setColor(Color.BLACK);  //画笔颜色
 
                                 paint2.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
-                                paint2.setTextSize(55);
+                                paint2.setTextSize(53);
 
                                 Rect rect = new Rect();
                                 paint2.getTextBounds(timeStr, 0, timeStr.length(), rect);
-                                Log.i("xxx", "TextBounds Width: "+rect.width()+"TextBounds-Height: "+rect.height());
-                                //绘制当前时间
-//                                Bitmap timeBitmap = GLFont.getImageOnRl(getAssets(),700, 80, timeStr, 53,Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-//                                canvas.drawBitmap(timeBitmap,1280-timeBitmap.getWidth()-75,83,paint);
-                                //长宽各除去2px Text在React有留白
-                                canvas.drawText(timeStr, 1707 - 40 + 3, 68 + rect.height() - 2 ,paint2);
-                                paint2.setColor(Color.WHITE);  //画笔颜色
-                                paint2.setStrokeWidth(0);
+                                drawTextStroke(paint2, timeStr, 1707 - 40 + 3, 68 + rect.height() - 1, 4, canvas);
 
-                                canvas.drawText(timeStr, 1707 - 40 + 3, 68 + rect.height() - 2 ,paint2);
 
                                 //绘制wifi图片
                                 Bitmap bitmapwifi = BitmapFactory.decodeResource(getResources(), R.drawable.icon_service);
@@ -982,46 +1009,54 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
                                 //绘制经纬度
                                 Paint paint3 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
-                                paint3.setStrokeWidth(1);  //设置线宽。单位为像素
-//
+                                paint3.setStrokeWidth(4);  //设置线宽。单位为像素
+                                paint3.setAntiAlias(true);
                                 paint3.setTextAlign(Paint.Align.LEFT);
                                 paint3.setColor(Color.WHITE);  //画笔颜色
                                 paint3.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
                                 paint3.setTextSize(53);
 
                                 Paint paint4 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
-                                paint4.setStrokeWidth(1);  //设置线宽。单位为像素
-//
+                                paint4.setStrokeWidth(4);  //设置线宽。单位为像素
+                                paint4.setAntiAlias(true);
                                 paint4.setTextAlign(Paint.Align.LEFT);
                                 paint4.setColor(Color.WHITE);  //画笔颜色
                                 paint4.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
-                                paint4.setTextSize(55);
-//                                wdStr = "";
-//                                jdStr = "";
-//                                placeStr = "";
+                                paint4.setTextSize(53);
+//
                                 //1.
                                 Rect rWdlable = new Rect();
-                                String wdLableStr = "纬度:";
+                                String wdLableStr = "纬度";
                                 paint3.getTextBounds(wdLableStr, 0, wdLableStr.length(), rWdlable);
-                                canvas.drawText(wdLableStr, 44, 1280 - 48 - 5,paint3);
+                                drawTextStroke(paint3, wdLableStr, 44 + 2, 1280 - 48 - 4, 4, canvas);
+
+                                Rect rWd0 = new Rect();
+                                paint3.getTextBounds(":", 0, ":".length(), rWd0);
+                                drawTextStroke(paint3, ":", 44 + 2 + rWdlable.width() + 5 , 1280 - 48 - 4, 4, canvas);
 
                                 Rect rWd = new Rect();
                                 paint4.getTextBounds(wdStr, 0, wdStr.length(), rWd);
-                                canvas.drawText(wdStr, 44 + rWdlable.width(), 1280 - 51, paint4);
+                                drawTextStroke(paint4, wdStr, 44 + 2 + rWd0.width() + 5 + rWdlable.width() + 11, 1280 - 51 - 2, 4, canvas);
+
                                 //2.
                                 Rect rJdlable = new Rect();
-                                String jdLableStr = "经度:";
+                                String jdLableStr = "经度";
                                 paint3.getTextBounds(jdLableStr, 0, jdLableStr.length(), rJdlable);
-                                canvas.drawText(jdLableStr, 44, 1280 - 48 - 5 - (rWdlable.height() +28) + 1 ,paint3);
+                                drawTextStroke(paint3, jdLableStr, 44 + 2, 1280 - 48 - 4 - (rWdlable.height() +28) - 1, 4, canvas);
+
+                                Rect rJd0 = new Rect();
+                                paint3.getTextBounds(":", 0, ":".length(), rJd0);
+                                drawTextStroke(paint3, ":", 44 + 2 + rJdlable.width() + 5, 1280 - 48 - 5 - (rWdlable.height() +28), 4, canvas);
 
                                 Rect rJd = new Rect();
                                 paint4.getTextBounds(jdStr, 0, jdStr.length(), rJd);
-                                canvas.drawText(jdStr, 44 + rJdlable.width(), 1280 - 51 - (rWd.height() +36) + 2, paint4);
+                                drawTextStroke(paint4, jdStr, 44 + 2 + rJd0.width() + 5 + rJdlable.width() + 6, 1280 - 51 - 2 - (rWd.height() +36), 4, canvas);
+
                                 //3.绘制位置
                                 //绘制位置
                                 Rect rPlace = new Rect();
                                 paint3.getTextBounds(placeStr, 0, placeStr.length(), rPlace);
-                                canvas.drawText(placeStr, 44, 1280 - 48 - 5 - (rWdlable.height() +28) - (rJdlable.height() + 38), paint3);
+                                drawTextStroke(paint3, placeStr, 44 + 2, 1280 - 48 - 4 - (rWdlable.height() +28) - (rJdlable.height() + 38) - 3, 4, canvas);
 
                                 //4.绘制ID
                                 String idStr = tv_id.getText().toString();
@@ -1029,13 +1064,15 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 Rect rID = new Rect();
                                 paint4.setTextAlign(Paint.Align.RIGHT);
                                 paint4.getTextBounds(idStr, 0, idStr.length(), rID);
-                                canvas.drawText(idStr, 1707 - 40 + 3, 1280 - 90 - 1, paint4);
+                                drawTextStroke(paint4, idStr, 1707 - 40 + 3, 1280 - 90 - 3, 4, canvas);
+
                                 //5.绘制名字
                                 String nameStr = tv_name.getText().toString();
                                 Rect rName = new Rect();
                                 paint3.setTextAlign(Paint.Align.RIGHT);
                                 paint3.getTextBounds(nameStr, 0, nameStr.length(), rName);
-                                canvas.drawText(nameStr, 1707 - 40 + 2, 1280 - 90 - (rID.height() + 78)  - 4, paint3);
+                                drawTextStroke(paint3, nameStr, 1707 - 40 + 2, 1280 - 90 - (rID.height() + 78)  - 8, 4, canvas);
+
                             }else{//4:3竖屏
                                 //根据Bitmap大小，画网格线
                                 //画logo
@@ -1044,7 +1081,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 canvas.drawBitmap(bitmaps,42,42,paint);
 
                                 Paint paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
-                                paint2.setStrokeWidth(3);  //设置线宽。单位为像素
+                                paint2.setStrokeWidth(4);  //设置线宽。单位为像素
 //                                paint2.setStyle(Paint.Style.FILL_AND_STROKE);//设置画笔的类型是填充，还是描边，还是描边且填充
                                 paint2.setAntiAlias(true); //抗锯齿
                                 paint2.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -1052,124 +1089,82 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 paint2.setColor(Color.BLACK);  //画笔颜色
 
                                 paint2.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
-                                paint2.setTextSize(53);
+                                paint2.setTextSize(50);
 
                                 Rect rect = new Rect();
                                 paint2.getTextBounds(timeStr, 0, timeStr.length(), rect);
-                                Log.i("xxx", "TextBounds Width: "+rect.width()+"TextBounds-Height: "+rect.height());
-                                //绘制当前时间
-//                                Bitmap timeBitmap = GLFont.getImageOnRl(getAssets(),700, 80, timeStr, 53,Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-//                                canvas.drawBitmap(timeBitmap,1280-timeBitmap.getWidth()-75,83,paint);
-                                //长宽各除去2px Text在React有留白
-                                canvas.drawText(timeStr, 1280 - 72 + 2, 83 + rect.height() - 2 ,paint2);
-                                paint2.setColor(Color.WHITE);  //画笔颜色
-                                paint2.setStrokeWidth(0);
-
-                                canvas.drawText(timeStr, 1280 - 72 + 2, 83 + rect.height() - 2 ,paint2);
+                                drawTextStroke(paint2, timeStr, 1280 - 72, 83 + rect.height() , 4, canvas);
 
                                 //绘制wifi图片
                                 Bitmap bitmapwifi = BitmapFactory.decodeResource(getResources(), R.drawable.icon_service);
                                 bitmapwifi= Bitmap.createScaledBitmap(bitmapwifi, 65, 65, true);
-                                canvas.drawBitmap(bitmapwifi,1280 - rect.width() - 72 - 22 - 65, 74, paint);
+                                canvas.drawBitmap(bitmapwifi,1280 - rect.width() - 72 - 22 - 65 - 3, 74, paint);
 
                                 //绘制经纬度
                                 Paint paint3 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
-                                paint3.setStrokeWidth(1);  //设置线宽。单位为像素
-//
+                                paint3.setStrokeWidth(3);  //设置线宽。单位为像素
+                                paint3.setAntiAlias(true);
                                 paint3.setTextAlign(Paint.Align.LEFT);
                                 paint3.setColor(Color.WHITE);  //画笔颜色
                                 paint3.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
                                 paint3.setTextSize(50);
 
                                 Paint paint4 = new Paint(Paint.ANTI_ALIAS_FLAG);  //画笔
-                                paint4.setStrokeWidth(1);  //设置线宽。单位为像素
-//
+                                paint4.setStrokeWidth(4);  //设置线宽。单位为像素
+                                paint4.setAntiAlias(true);
                                 paint4.setTextAlign(Paint.Align.LEFT);
                                 paint4.setColor(Color.WHITE);  //画笔颜色
                                 paint4.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/FZHTXH_GB.TTF"));
-                                paint4.setTextSize(52);
-//                                wdStr = "";
-//                                jdStr = "";
-//                                placeStr = "";
+                                paint4.setTextSize(50);
+
                                 //1.
                                 Rect rWdlable = new Rect();
-                                String wdLableStr = "纬度:";
+                                String wdLableStr = "纬度";
                                 paint3.getTextBounds(wdLableStr, 0, wdLableStr.length(), rWdlable);
-                                canvas.drawText(wdLableStr, 40, 1707 - 44 - 5,paint3);
+                                drawTextStroke(paint3, wdLableStr, 40 + 2, 1707 - 44 - 5, 4, canvas);
+
+                                Rect rWd0 = new Rect();
+                                paint3.getTextBounds(":", 0, ":".length(), rWd0);
+                                drawTextStroke(paint3, ":", 40 + 2 + rWdlable.width() + 5, 1707 - 44 - 5, 4, canvas);
 
                                 Rect rWd = new Rect();
                                 paint4.getTextBounds(wdStr, 0, wdStr.length(), rWd);
-                                canvas.drawText(wdStr, 40 + rWdlable.width(), 1707 - 44 - 5, paint4);
+                                drawTextStroke(paint4, wdStr, 40 + 2 + rWdlable.width() + 6 + rWd0.width() + 10, 1707 - 44 - 6, 4, canvas);
+
                                 //2.
                                 Rect rJdlable = new Rect();
-                                String jdLableStr = "经度:";
+                                String jdLableStr = "经度";
                                 paint3.getTextBounds(jdLableStr, 0, jdLableStr.length(), rJdlable);
-                                canvas.drawText(jdLableStr, 40, 1707 - 44 - 5 - (rWdlable.height() +26) ,paint3);
+                                drawTextStroke(paint3, jdLableStr, 40 + 2, 1707 - 44 - 5 - (rWdlable.height() +26), 4, canvas);
+
+                                Rect rJd0 = new Rect();
+                                paint3.getTextBounds(":", 0, ":".length(), rJd0);
+                                drawTextStroke(paint3, ":", 40 + 2 + rJdlable.width() + 5, 1707 - 44 - 5 - (rWdlable.height() +26), 4, canvas);
 
                                 Rect rJd = new Rect();
                                 paint4.getTextBounds(jdStr, 0, jdStr.length(), rJd);
-                                canvas.drawText(jdStr, 40 + rJdlable.width(), 1707 - 44 - 5 - (rWd.height() + 26 + 4), paint4);
+                                drawTextStroke(paint4, jdStr, 40 + 2 + rJdlable.width() + 6 + rJd0.width() + 5, 1707 - 44 - 5 - (rWd.height() + 26 + 8), 4, canvas);
+
                                 //3.绘制位置
                                 //绘制位置
                                 Rect rPlace = new Rect();
                                 paint3.getTextBounds(placeStr, 0, placeStr.length(), rPlace);
-                                canvas.drawText(placeStr, 40, 1707 - 44 - 5 - (rWd.height() + 26 + 4) - (rJd.height() + 30 + 4), paint3);
+                                drawTextStroke(paint3, placeStr, 40 + 2, 1707 - 44 - 5 - (rWd.height() + 26 + 4) - (rJd.height() + 30 + 4) - 4, 4, canvas);
 
                                 //4.绘制ID
                                 String idStr = tv_id.getText().toString();
 
                                 Rect rID = new Rect();
                                 paint4.getTextBounds(idStr, 0, idStr.length(), rID);
-                                canvas.drawText(idStr, 40, 1707 - 44 - 5  - (rWd.height() + 26 + 4) - (rJd.height() + 30 + 4 ) - (rPlace.height() + 27), paint4);
+                                drawTextStroke(paint4, idStr, 40 + 2, 1707 - 44 - 5  - (rWd.height() + 26 + 4) - (rJd.height() + 30 + 4 ) - (rPlace.height() + 27) - 5, 4, canvas);
+
                                 //5.绘制名字
                                 String nameStr = tv_name.getText().toString();
                                 Rect rName = new Rect();
                                 paint3.getTextBounds(nameStr, 0, nameStr.length(), rName);
-                                canvas.drawText(nameStr, 40, 1707 - 44 - 5 - (rWd.height() + 26 + 4) - (rJd.height() + 30 + 4) - (rPlace.height() + 27) - (rID.height() + 32) + 2, paint3);
+                                drawTextStroke(paint3, nameStr, 40 + 2, 1707 - 44 - 5 - (rWd.height() + 26 + 4) - (rJd.height() + 30 + 4) - (rPlace.height() + 27) - (rID.height() + 32) - 8, 4, canvas);
                             }
                         }
-//                    }else{
-//                        //根据Bitmap大小，画网格线
-//                        //画logo
-//                        Bitmap bitmaps = BitmapFactory.decodeResource(getResources(), R.drawable.icon_logo);
-//                        bitmaps= Bitmap.createScaledBitmap(bitmaps, 25, 25, true);
-//                        canvas.drawBitmap(bitmaps,5,5,paint);
-//
-//                        //绘制当前时间
-//                        Bitmap timeBitmap = GLFont.getImage(getAssets(),120, 20, timeStr, 10);
-//                        canvas.drawBitmap(timeBitmap,result.getSize().getWidth()-timeBitmap.getWidth(),0,paint);
-//                        //绘制wifi图片
-//                        Bitmap bitmapwifi = BitmapFactory.decodeResource(getResources(), R.drawable.icon_service);
-//                        bitmapwifi= Bitmap.createScaledBitmap(bitmapwifi, 15, 15, true);
-//                        canvas.drawBitmap(bitmapwifi,result.getSize().getWidth()-timeBitmap.getWidth()-bitmapwifi.getWidth()-10,5,paint);
-//
-//                        //绘制经纬度
-//                        Bitmap jdBitmap = GLFont.getImage(getAssets(),375, 20,wdStr , 10);
-//                        canvas.drawBitmap(jdBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight(),paint);
-//
-//                        Bitmap wdBitmap = GLFont.getImage(getAssets(),375, 20,jdStr , 10);
-//                        canvas.drawBitmap(wdBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight(),paint);
-//
-//                        //绘制位置
-//                        Bitmap placeBitmap = GLFont.getImage(getAssets(),500, 20, placeStr, 10);
-//                        canvas.drawBitmap(placeBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight(),paint);
-//
-//                        if(ori==mConfiguration.ORIENTATION_LANDSCAPE) {//横屏
-//                            //绘制ID
-//                            Bitmap idBitmap = GLFont.getImageOnRl(getAssets(),300, 20, tv_id.getText().toString(), 10, Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-//                            canvas.drawBitmap(idBitmap,result.getSize().getWidth()-idBitmap.getWidth()-20,result.getSize().getHeight()-idBitmap.getHeight(),paint);
-//                            //绘制名字
-//                            Bitmap nameBitmap = GLFont.getImageOnRl(getAssets(),300, 20, tv_name.getText().toString(), 10, Color.WHITE, Typeface.create("宋体",Typeface.BOLD));
-//                            canvas.drawBitmap(nameBitmap,result.getSize().getWidth()-nameBitmap.getWidth()-20,result.getSize().getHeight()-nameBitmap.getHeight()-idBitmap.getHeight(),paint);
-//                        }else{
-//                            //绘制ID
-//                            Bitmap idBitmap = GLFont.getImage(getAssets(),300, 20, tv_id.getText().toString(), 10);
-//                            canvas.drawBitmap(idBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-idBitmap.getHeight(),paint);
-//                            //绘制名字
-//                            Bitmap nameBitmap = GLFont.getImage(getAssets(),100, 20, tv_name.getText().toString(), 10);
-//                            canvas.drawBitmap(nameBitmap,20,result.getSize().getHeight()-jdBitmap.getHeight()-wdBitmap.getHeight()-placeBitmap.getHeight()-idBitmap.getHeight()-nameBitmap.getHeight(),paint);
-//                        }
-//                    }
 
 
                     DateFormat format = new SimpleDateFormat("yyyy年MM月dd日-HHmmss-");
