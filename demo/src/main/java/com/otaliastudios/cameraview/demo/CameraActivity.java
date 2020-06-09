@@ -119,12 +119,11 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     Button bt_ori;
     String timeStr;
 
-    String placeStr="";
+    String placeStr="该位置信息暂无";
 
-    String wdStr="";
+    String wdStr="0.0";
 
-    String jdStr="";
-    LinearLayout top_ll;
+    String jdStr="0.0";
     private Handler mHandler;
     String weight;
     String length;
@@ -140,7 +139,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         CameraLogger.setLogLevel(CameraLogger.LEVEL_VERBOSE);
         camera = findViewById(R.id.camera);
         bt_ori = findViewById(R.id.bt_ori);
-        top_ll = findViewById(R.id.top_ll);
+
         cb_sp = findViewById(R.id.cb_sp);
         tv_name = findViewById(R.id.textView11);
         tv_id = findViewById(R.id.textView10);
@@ -191,7 +190,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                         SizeSelectors.biggest() // If none is found, take the biggest
                 );
                 camera.setPictureSize(result);
-                top_ll.setLayoutParams(new LinearLayout.LayoutParams(0,ViewGroup.LayoutParams.MATCH_PARENT,2));
             } else if (ori == mConfiguration.ORIENTATION_PORTRAIT) {
                 SizeSelector width = SizeSelectors.maxWidth(2000);
                 SizeSelector height = SizeSelectors.maxHeight(2000);
@@ -206,7 +204,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                         SizeSelectors.biggest() // If none is found, take the biggest
                 );
                 camera.setPictureSize(result);
-                top_ll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,0,2));
             }
         }else{
             if (ori == mConfiguration.ORIENTATION_LANDSCAPE) {
@@ -223,7 +220,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                         SizeSelectors.biggest() // If none is found, take the biggest
                 );
                 camera.setPictureSize(result);
-                top_ll.setLayoutParams(new LinearLayout.LayoutParams(0,ViewGroup.LayoutParams.MATCH_PARENT,0));
             } else if (ori == mConfiguration.ORIENTATION_PORTRAIT) {
                 SizeSelector width = SizeSelectors.maxWidth(1500);
                 SizeSelector height = SizeSelectors.maxHeight(2500);
@@ -238,7 +234,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                         SizeSelectors.biggest() // If none is found, take the biggest
                 );
                 camera.setPictureSize(result);
-                top_ll.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,0,0));
             }
         }
 
