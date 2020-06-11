@@ -683,6 +683,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setStrokeWidth(outStrokeWidth);
         paint.setColor(Color.BLACK);  //画笔颜色
+
 //        paint.setAlpha(191);
         paint.setAlpha(128);
 //        paint.setColor(Color.BLACK);  //画笔颜色
@@ -726,7 +727,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                     Bitmap tepBitmap=Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
                     Bitmap newBitmap;
                     if(facing != Facing.BACK) {
-                        newBitmap = convertBmp(tepBitmap);
+//                        newBitmap = convertBmp(tepBitmap);
+                        newBitmap = tepBitmap;
                     }
                     else {
                         newBitmap = tepBitmap;
@@ -1164,7 +1166,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
                     DateFormat format = new SimpleDateFormat("yyyy年MM月dd日-HHmmss-");
                     Date date = new Date();
-                    saveBitmap(newBitmap,format.format(date)+date.getTime()+".jpg");
+                    saveBitmap(newBitmap,format.format(date)+date.getTime()+".jpg", isHaveWeight);
                 }
             });
         } catch (UnsupportedOperationException e) {
@@ -1250,7 +1252,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void saveBitmap(Bitmap bitmap, String bitName){
+    private void saveBitmap(Bitmap bitmap, String bitName, boolean isHaveWeight){
 
         String fileName ;
         File file ;
@@ -1267,7 +1269,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         try{
             out = new FileOutputStream(file);
             // 格式为 JPEG，照相机拍出的图片为JPEG格式的，PNG格式的不能显示在相册中
-            if(bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out))
+            if(bitmap.compress(Bitmap.CompressFormat.JPEG, isHaveWeight ? 90 : 85, out))
             {
                 out.flush();
                 out.close();
